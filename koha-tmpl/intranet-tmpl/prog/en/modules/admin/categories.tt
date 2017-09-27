@@ -761,6 +761,12 @@
                                                             <span>Hold reminder</span>
                                                         [% ELSIF ( prefs.Patron_Expiry ) %]
                                                             <span>Patron account expiry</span>
+                                                        [% ELSIF ( prefs.Overdue1 ) %]
+                                                            <span>Overdue 1</span>
+                                                        [% ELSIF ( prefs.Overdue2 ) %]
+                                                            <span>Overdue 2</span>
+                                                        [% ELSIF ( prefs.Overdue3 ) %]
+                                                            <span>Overdue 3</span>
                                                         [% ELSE %]
                                                             <span>Unknown</span>
                                                         [% END %]:
