@@ -277,7 +277,7 @@
                     <legend>Subtype limits</legend><p> [% PROCESS subtype_dropdowns %] </p
                     ><fieldset id="current_subtype_limits">
                         <legend>Current subtype limits</legend>
-                        [% FOREACH subtype IN ['aud','fic','bio','ctype','l-format'] %]
+                        [% FOREACH subtype IN ['aud','fic','bio','ctype','l-format','gub-format'] %]
                             [% FOREACH limit IN limits.$subtype %]
                                 <span>
                                     <input name="limit" value="[% subtype | html %]:[% limit | html %]" type="hidden" />
