@@ -74,6 +74,7 @@
             </ul>
         </div>
 
+        [% IF !Koha.Preference('HideCircReports') %]
         <div class="col-12 col-sm-4">
             <div class="holds-bookings">
                 <h3>Holds [% IF Koha.Preference('EnableBooking') %]and bookings[% END %]</h3>
@@ -181,6 +182,7 @@
             [% END %]
         </div>
     </div>
+    [% END %]
     <div class="row" id="intranet-circulation-home-html">
         <div class="col-md-12"> [% Koha.Preference('IntranetCirculationHomeHTML') | $raw %] </div>
     </div>
