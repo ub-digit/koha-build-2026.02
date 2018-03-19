@@ -784,7 +784,13 @@ Circulation:
               default: 0
               class: integer
             - 'patron(s) to return an item. This setting is independent of the <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=opacreadinghistory">opacreadinghistory</a> and <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=AnonymousPatron">AnonymousPatron</a> system preferences. Leave empty or set to 0 to disable the preference.'
-    Holds policy:
+        -
+            - pref: ShowRefundLostItemFeeMessage
+              choices:
+                  yes: Enable
+                  no: Disable
+            - When disabled, the lost item fee refund message is hidden.
+    Holds Policy:
         -
             - Default the holds ratio report to
             - pref: HoldRatioDefault
