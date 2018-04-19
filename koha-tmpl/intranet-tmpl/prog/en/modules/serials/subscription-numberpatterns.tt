@@ -391,6 +391,8 @@
         $(document).ready(function(){
 
             $("#numberpatternst").kohaTable({
+                paging: false,
+                "order": [[ 3, "asc" ]],
                 pagingType: "full",
             });
 
