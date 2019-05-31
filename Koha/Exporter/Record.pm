@@ -122,7 +122,7 @@ sub _get_deleted_biblio_for_export {
         {
             'biblionumber' => $biblionumber,
             'format'       => 'marcxml',
-            'marcflavour'  => $marc_flavour
+            'schema'       => $marc_flavour
         }
     );
     my $marc_xml = $biblio_metadata->metadata;
