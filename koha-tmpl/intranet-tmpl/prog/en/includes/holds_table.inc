@@ -349,7 +349,7 @@
                     [%- END # IF SuspendHoldsIntranet -%]
                     [%- IF ( hold.found ) -%]
                         <a
-                            class="btn btn-default  submit-form-link"
+                            class="btn btn-default  submit-form-link [% UNLESS hold.intransit %]d-none[% END %]"
                             href="#"
                             id="revert_hold_[% hold.reserve_id | html %]"
                             data-op="cud-move"
