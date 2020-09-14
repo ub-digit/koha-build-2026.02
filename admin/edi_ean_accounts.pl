@@ -90,6 +90,8 @@ if ( $op eq 'ean_form' ) {
         {},
         {
             join => 'branch',
+            # GU - Sort alphabetically
+            order_by => {-asc => 'branchname'}
         }
     );
     $template->param( display => 1 );
