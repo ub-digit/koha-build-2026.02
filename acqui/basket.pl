@@ -98,10 +98,19 @@ my $rs         = $schema->resultset('VendorEdiAccount')->search( { vendor_id => 
 my $ediaccount = ( $rs->count > 0 );
 $template->param( ediaccount => $ediaccount );
 if ($ediaccount) {
+    #GU - Get bookseller id and set search filter term
+    my @booksellers = (" Adlib ", " Daw ", " Delb ", "", " Bokus ", " Ebsco ", " Jure ", " Erasmus ");
+    my $bookseller =  $booksellers[$booksellerid-1];
     my @eans = $schema->resultset('EdifactEan')->search(
-        {},
+        #GU - Filter on booksellerid and billingplace
+        {
+            description        => { -like => '%' . $bookseller . '%' },
+            'branch.branchcode' => $basket->{billingplace},
+        },
         {
             join => 'branch',
+            #GU - Sort alphabetically
+            order_by => { -asc => 'branchname' },
         }
     );
 
