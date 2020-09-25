@@ -460,6 +460,7 @@ sub core_types_to_classes {
         pseudonymize_statistic              => 'Koha::BackgroundJob::PseudonymizeStatistic',
         import_from_kbart_file              => 'Koha::BackgroundJob::ImportKBARTFile',
         file_transport_test                 => 'Koha::BackgroundJob::TestTransport',
+        search_result_export                => 'Koha::BackgroundJob::SearchResultExport',
     };
 }
 
