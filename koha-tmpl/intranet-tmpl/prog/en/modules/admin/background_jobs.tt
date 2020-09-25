@@ -230,6 +230,10 @@
                 '_id': 'file_transport_test',
                 '_str': _("File transport connection test")
             },
+            {
+                '_id': 'search_result_export',
+                '_str': _("Search result export")
+            },
             [% FOR job_type IN plugin_job_types %]
             {
                 '_id': '[% job_type.id | html %]',
