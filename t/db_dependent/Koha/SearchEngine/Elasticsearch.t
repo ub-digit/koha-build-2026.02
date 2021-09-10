@@ -319,6 +319,16 @@ subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' 
             marc_field  => '245',
         },
         {
+            name        => 'title_sort',
+            type        => 'string',
+            facet       => 0,
+            suggestible => 0,
+            searchable  => 0,
+            sort        => 1,
+            marc_type   => 'marc21',
+            marc_field  => '246a',
+        },
+        {
             name        => 'sum_item_price',
             type        => 'sum',
             facet       => 0,
@@ -485,6 +495,7 @@ subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' 
         MARC::Field->new( '650', '', '',  a => 'Heading',    z => 'Geohead',    v => 'Formhead' ),
         MARC::Field->new( '650', '', '',  a => 'Heading',    x => 'Gensubhead', z => 'Geohead' ),
         MARC::Field->new( '999', '', '',  c => '1234567' ),
+        MARC::Field->new( '246', '', '', a => '#$[Title!' ),
 
         # '  ' for testing trimming of white space in boolean value callback:
         MARC::Field->new( '952', '', '', 0 => '  ', g => '123.30', o => $callno,      l => 3 ),
@@ -706,9 +717,14 @@ subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' 
         'First document copydate field should be set correctly'
     );
 
+    is(
+        $docs->[0]->{title_sort__sort}[0],
+        'Title!',
+        'First document title_sort should have initial non word characters stripped',
+    );
+
     # Second record:
 
-    is( scalar @{ $docs->[1]->{author} }, 1, 'Second document author field should contain one value' );
     is_deeply( $docs->[1]->{author}, ['Author 2'], 'Second document author field should be set correctly' );
 
     is(
