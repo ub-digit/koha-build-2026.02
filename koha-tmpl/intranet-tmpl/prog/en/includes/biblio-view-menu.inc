@@ -75,9 +75,12 @@
             </li>
         [%- END -%]
 
+        <!-- GUB - hide history button unless user is authorized-->
+        [%- IF ( CAN_user_tools_view_system_logs ) -%]
         <li [% IF issuehistoryview %]class="active"[% END %]>
             <a href="/cgi-bin/koha/catalogue/issuehistory.pl?biblionumber=[% biblio_object_id | url %]">Checkout history</a>
         </li>
+        [%- END -%]
 
         [%- IF ( CAN_user_tools_view_system_logs ) -%]
             <li [% IF logview %]class="active"[% END %]>
