@@ -480,7 +480,10 @@
                                     [% ELSE %]
                                         0
                                     [% END %]
+                                    <!-- show link to item's checkout history only if user has correct rights (GUB) -->
+                                    [% IF ( CAN_user_tools_view_system_logs ) %]
                                     (<a href="/cgi-bin/koha/circ/bookcount.pl?&amp;biblionumber=[% ITEM_DAT.biblionumber | uri %]&amp;itm=[% ITEM_DAT.itemnumber | uri %]">View item's checkout history</a>)
+                                    [% END %]
                                 </li>
 
                                 <li class="datelastseen">
@@ -497,7 +500,12 @@
                                 [% IF Koha.Preference('StoreLastBorrower') && Koha.Preference('StoreLastBorrower') > 0 %]
                                     [% SET all_borrowers = ITEM_DAT.object.last_borrowers %]
                                     [% IF all_borrowers.count > 0 %]
+                                        <!-- hide Last returned by unless user has correct rights (GUB) -->
+                                        [% UNLESS ( CAN_user_tools_view_system_logs ) %]
+                                        <li class="d-none">
+                                        [% ELSE %]
                                         <li>
+                                        [% END %]
                                             <span class="label">Last returned by:</span>
                                             [% FOREACH patron IN all_borrowers %]
                                                 [% SET returned_by = patron.cardnumber || patron.borrowernumber %]
@@ -509,7 +517,12 @@
 
                                 [% FOR i IN ITEM_DAT.old_issues %]
                                     [% SET b = i.patron %]
+                                    <!-- hide Last borrower and Previous borrower unless user has correct rights (GUB) -->
+                                    [% UNLESS ( CAN_user_tools_view_system_logs ) %]
+                                    <li class="previous_borrowers d-none">
+                                    [% ELSE %]
                                     <li class="previous_borrowers">
+                                    [% END %]
                                         [% IF loop.first %]
                                             <span class="label">Last borrower:</span>
                                         [% ELSE %]
@@ -520,7 +533,12 @@
                                     </li>
                                 [% END %]
                                 [% IF ( ITEM_DAT.paidfor ) %]
+                                    <!-- hide Paid for unless user has correct rights (GUB) -->
+                                    [% UNLESS ( CAN_user_tools_view_system_logs ) %]
+                                    <li class="paidfor d-none">
+                                    [% ELSE %]
                                     <li class="paidfor">
+                                    [% END %]
                                         <span class="label">Paid for?:</span>
                                         [% INCLUDE 'patron-title.inc' patron=ITEM_DAT.paidfor.patron hide_patron_infos_if_needed=1 %] on [% ITEM_DAT.paidfor.created_on | $KohaDates %]
                                     </li>
