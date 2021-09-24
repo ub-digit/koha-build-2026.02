@@ -57,7 +57,7 @@ function confirm_deletion(link) {
         if (order_manage_permission) {
             is_confirmed = confirm(
                 __(
-                    "Warning: This record is used in %s order(s). These orders will be cancelled. Are you sure you want to delete this record?"
+                    "Det finns orderuppgifter för denna post i Inköp och du bör radera posten där. Vill du fortsätta?"
                 ).format(countorders)
             );
         } else {
@@ -71,7 +71,7 @@ function confirm_deletion(link) {
         if (order_manage_permission) {
             is_confirmed = confirm(
                 __(
-                    "%s deleted order(s) are using this record. Are you sure you want to delete this record?"
+                    "Det finns orderuppgifter för denna post i Inköp och du bör radera posten där. Vill du fortsätta?"
                 ).format(countdeletedorders)
             );
         } else {
