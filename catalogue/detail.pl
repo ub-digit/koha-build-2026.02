@@ -274,10 +274,7 @@ if ( $showcomp eq 'both' || $showcomp eq 'staff' ) {
         $template->param( ComponentPartsQuery => $cpq );
     }
 } else {    # check if we should show analytics anyway
-    $show_analytics = 1
-        if !$invalid_marc_record && @{ $biblio->get_marc_components(1) };    # count matters here, results does not
-    $template->param( analytics_error => 1 )
-        if grep { $_->message eq 'component_search' } @{ $biblio->object_messages };
+    # GUB: Don't show analytics link
 }
 
 # Display volumes link
