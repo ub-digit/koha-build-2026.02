@@ -138,7 +138,12 @@ Logging:
                   1: Log
                   0: "Don't log"
             - item transfers.
-
+        -
+            - pref: PatronViewLog
+              choices:
+                  1: Log
+                  0: "Don't log"
+            - " when patron personal information is viewed in the staff interface."
     Debugging:
         -
             - "When logging actions, store a stack trace that goes at most"
