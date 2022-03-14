@@ -3,7 +3,7 @@
 [% USE ViewLog %]
 [% PROCESS 'member-display-address-style.inc' %]
 [% IF ( patron.borrowernumber ) %]
-    [% ViewLog.log_patron_view(patron.borrowernumber) %]
+    [% CALL ViewLog.log_patron_view(patron.borrowernumber) %]
     [% SET patron_is_staff = patron.has_permission({ 'catalogue' => 1 }) %]
     [% SET patron_is_sco = patron.has_permission({ 'self_check' => 'self_checkout_module'}) %]
     [% SET patron_is_sci = patron.has_permission({ 'self_check' => 'self_checkin_module'}) %]
