@@ -79,6 +79,8 @@
         <span>Renew</span>
     [% CASE 'RENEWAL' %]
         <span>Renew</span>
+    [% CASE 'VIEW' %]
+        <span>View</span>
     [% CASE 'CHANGE PASS' %]
         <span>Change password</span>
     [% CASE 'RESET PASS' %]
