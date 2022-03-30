@@ -647,7 +647,7 @@
                     <input class="decimal" type="text" size="20" name="listprice" id="listprice" value="[% listprice | html %]" onchange="updateCosts()" /> [% IF (listincgst == 1) %](tax inclusive)[% ELSE %](tax exclusive)[% END %]
                 </li>
                 <!-- GU hide uncertain price -->
-                <input type="hidden" name="uncertainprice" id="uncertainprice" value="1" />
+                <input type="hidden" name="uncertainprice" id="uncertainprice" value="0" />
                 <!-- GU hide tax rate -->
                 [% IF ( gst_values ) %]
                     [% FOREACH gst IN gst_values %]
