@@ -120,6 +120,9 @@ if ( $include_deleted || $deleted_only ) {
     if ( $output_format eq 'csv' ) {
         pod2usage(q|Option "--include_deleted" or "--deleted_only" cannot be used with "--format=csv"|);
     }
+    if ( !$timestamp ) {
+        pod2usage(q|Option "--include_deleted" or "--deleted_only" must be combined with "--date"|);
+    }
 }
 
 if ( $output_format eq 'csv' and $record_type eq 'auths' ) {
