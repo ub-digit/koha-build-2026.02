@@ -374,11 +374,10 @@
                     stateSave: true, // We do not have table settings on this table
                     pageLength: 10,
                     lengthMenu: [
-                        [5, 5, 10, 20, 50, 100, -1],
-                        [5, 5, 10, 20, 50, 100, _("All")],
+                        [5, 10, 20, 50, 100, -1],
+                        [5, 10, 20, 50, 100, _("All")],
                     ],
                     columns: [
-                        { type: "html" },
                         { type: "html" },
                         { type: "html" },
                         { type: "html" },
