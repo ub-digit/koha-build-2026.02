@@ -27,6 +27,7 @@ BEGIN {
 }
 
 use Koha::Statistics;
+use C4::Context;
 
 =head1 NAME
 
@@ -53,6 +54,7 @@ The functions of this module deals with statistics table of Koha database.
 
 sub UpdateStats {
     my $params = shift;
+    return () if ( C4::Context->preference('DisableStatistics') );
     Koha::Statistic->new($params)->store;
 }
 
