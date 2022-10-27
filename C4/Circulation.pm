@@ -2751,6 +2751,14 @@ sub AddReturn {
 
     }
 
+    if ( !$issue ) {
+        Koha::Plugins->call( 'after_circ_action', {
+            action  => 'checkin_no_issue',
+            payload => {
+                checkin => $item
+            }
+        });
+    }
     return ( $doreturn, $messages, $issue, ( $patron ? $patron->unblessed : {} ) );
 }
 
