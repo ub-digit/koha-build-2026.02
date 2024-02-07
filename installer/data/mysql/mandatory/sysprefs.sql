@@ -765,6 +765,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('SkipHoldTrapOnNotForLoanValue','',NULL,'If set, Koha will never trap items for hold with this notforloan value','Integer'),
 ('SlipCSS','',NULL,'Slips CSS url.','Free'),
 ('SMSSendAdditionalOptions', '', NULL, 'Additional SMS::Send parameters used to send SMS messages', 'Free'),
+('SMSSendDefaultCountryCode ',NULL,NULL,'Default SMS::Send driver recipient phone number country code','Integer'),
 ('SMSSendDriver','',NULL,'Sets which SMS::Send driver is used to send SMS messages.','Free'),
 ('SMSSendMaxChar', '', NULL, 'Add a limit for the number of characters in SMS messages', 'Integer'),
 ('SMSSendPassword', '', NULL, 'Password used to send SMS messages', 'Free'),
