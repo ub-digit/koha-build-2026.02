@@ -17,14 +17,20 @@
 
 use Modern::Perl;
 
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
 use t::lib::Mocks;
 
 use Test::NoWarnings;
-use Test::More tests => 9;
+
+use Test::More tests => 11;
 
 BEGIN {
     use_ok('C4::SMS');
 }
+
+t::lib::Mocks::mock_preference('SMSSendDefaultCountryCode', '');
 
 my $driver = 'my mock driver';
 t::lib::Mocks::mock_preference( 'SMSSendDriver', $driver );
@@ -69,3 +75,26 @@ is( $error,    'SMS_SEND_DRIVER_MISSING', 'Error code returned is SMS_SEND_DRIVE
 );
 is( $send_sms, 1, 'send_sms returns 1' );
 
+
+t::lib::Mocks::mock_preference('SMSSendDriver', 'KohaTest');
+t::lib::Mocks::mock_preference('SMSSendDefaultCountryCode', '46');
+
+my $driver_arguments = C4::SMS->send_sms({
+    destination => '+33123456789',
+    message => 'my message'
+});
+
+is( $driver_arguments->{to},
+    '+33123456789',
+    'country code has been preserved when SMSSendDefaultCountryCode is set and destination is international phone number'
+);
+
+$driver_arguments = C4::SMS->send_sms({
+    destination => '0123456789',
+    message => 'my message'
+});
+
+is( $driver_arguments->{to},
+    '+46123456789',
+    'default country code has been prepended when SMSSendDefaultCountryCode is set and destination is non international phone number'
+);
