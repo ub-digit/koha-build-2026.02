@@ -119,6 +119,10 @@ if ( !$op ) {
 
     my $id     = $input->param('id');
     my $report = Koha::Reports->find($id);
+    # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+    if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+        $report = undef;
+    }
     $template->param(
         'id'            => $id,
         'reportname'    => $report->report_name,
@@ -133,6 +137,10 @@ if ( !$op ) {
 } elsif ( $op eq 'edit_form' ) {
     my $id       = $input->param('id');
     my $report   = Koha::Reports->find($id);
+    # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+    if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+        $report = undef;
+    }
     my $group    = $report->report_group;
     my $subgroup = $report->report_subgroup;
     my $tables   = get_tables();
@@ -623,6 +631,10 @@ if ( !$op ) {
     # export results to tab separated text or CSV
     my $report_id   = $input->param('id');
     my $report      = Koha::Reports->find($report_id);
+    # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+    if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+        $report = undef;
+    }
     my $sql         = $report->savedsql;
     my @param_names = $input->multi_param('param_name');
     my @sql_params  = $input->multi_param('sql_params');
@@ -755,6 +767,10 @@ if ( !$op ) {
         $notes      = $input->param('notes')      // '';
     } elsif ( my $report_id = $input->param('id') ) {
         my $report = Koha::Reports->find($report_id);
+        # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+        if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+            $report = undef;
+        }
         $group      = $report->report_group;
         $subgroup   = $report->report_subgroup;
         $sql        = $report->savedsql    // '';
@@ -801,6 +817,10 @@ if ( $op eq 'run' ) {
 
     my ( $sql, $original_sql, $type, $name, $notes );
     if ( my $report = Koha::Reports->find($report_id) ) {
+        # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+        if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+            $report = undef;
+        }
         $sql   = $original_sql = $report->savedsql;
         $name  = $report->report_name;
         $notes = $report->notes;
@@ -1057,6 +1077,10 @@ if ( $op eq 'list' || $op eq 'convert' ) {
     if ( $op eq 'convert' ) {
         my $report_id = $input->param('id');
         my $report    = Koha::Reports->find($report_id);
+        # GUB - Check if the user has the right to edit the report, if the report_group is PRIV, flags must be 1
+        if ( $report->report_group eq 'PRIV' && C4::Context->userenv->{flags} != 1 ) {
+            $report = undef;
+        }
         if ($report) {
             my $updated_sql = C4::Reports::Guided::convert_sql( $report->savedsql );
             C4::Reports::Guided::update_sql(
