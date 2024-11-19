@@ -80,8 +80,8 @@ if ( $marcflavour eq 'UNIMARC' ) {
 my $deleted_biblio = MARC::Record->new();
 $deleted_biblio->leader('00136nam a22000617a 4500');
 $deleted_biblio->append_fields(
-    MARC::Field->new( '100', ' ', ' ', a => 'Chopra, Deepak' ),
-    MARC::Field->new( '245', ' ', ' ', a => 'The seven spiritual laws of success' ),
+    MARC::Field->new( '100',            ' ', ' ', a => 'Chopra, Deepak' ),
+    MARC::Field->new( $title_field_tag, ' ', ' ', a => 'The seven spiritual laws of success' ),
 );
 my ($deleted_biblionumber) = AddBiblio( $deleted_biblio, '' );
 DelBiblio($deleted_biblionumber);
@@ -207,7 +207,7 @@ subtest 'export xml' => sub {
 
     # Leader has the expected value (and record status "d", length may have
     # changed)
-    ok( $deleted_record->leader =~ '\d{5}dam a22000617a 4500', 'Deleted record has the expected leader value' );
+    ok( $deleted_record->leader =~ '\d{5}dam a22000\d{2}7a 4500', 'Deleted record has the expected leader value' );
 };
 
 subtest 'export iso2709' => sub {
@@ -243,7 +243,7 @@ subtest 'export iso2709' => sub {
 
     # Leader has the expected value (and record status "d", length may have
     # changed)
-    ok( $deleted_record->leader =~ '\d{5}dam a22000617a 4500', 'Deleted record has the expected leader value' );
+    ok( $deleted_record->leader =~ '\d{5}dam a22000\d{2}7a 4500', 'Deleted record has the expected leader value' );
 };
 
 subtest 'export without record_type' => sub {
