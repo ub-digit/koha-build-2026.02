@@ -211,7 +211,7 @@ subtest 'get_elasticsearch_mappings() tests' => sub {
 
 subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' => sub {
 
-    plan tests => 71;
+    plan tests => 72;
 
     t::lib::Mocks::mock_preference( 'marcflavour',             'MARC21' );
     t::lib::Mocks::mock_preference( 'ElasticsearchMARCFormat', 'base64ISO2709' );
@@ -500,6 +500,7 @@ subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' 
 
         # MARC::Field->new('210', '', '', a => 'Title 2'),
         # MARC::Field->new('245', '', '', a => 'Title: second record'),
+        MARC::Field->new( '246', '', '', a => '!!!' ),
         MARC::Field->new( '260', '', '', a => 'New York :', b => 'Ace ,', c => '1963-2003' ),
         MARC::Field->new( '999', '', '', c => '1234568' ),
         MARC::Field->new( '952', '', '', 0 => 1, g => 'string where should be numeric', o => $long_callno ),
@@ -713,6 +714,12 @@ subtest 'Koha::SearchEngine::Elasticsearch::marc_records_to_documents () tests' 
     );
 
     # Second record:
+
+    is(
+        $docs->[1]->{title_sort__sort}[0],
+        '!!!',
+        'Second document title_sort should have been left as is as only contains non word characters',
+    );
 
     is_deeply( $docs->[1]->{author}, ['Author 2'], 'Second document author field should be set correctly' );
 
