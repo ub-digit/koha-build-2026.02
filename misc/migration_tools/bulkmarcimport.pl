@@ -59,6 +59,7 @@ my $biblios;
 my $authorities;
 my $keepids;
 my $match;
+my $match_record_id;
 my $isbn_check;
 my $logfile;
 my $insert;
@@ -104,6 +105,7 @@ GetOptions(
     'update'              => \$update,
     'all'                 => \$all,
     'match=s@'            => \$match,
+    'match_record_id'     => \$match_record_id,
     'i|isbn'              => \$isbn_check,
     'x:s'                 => \$sourcetag,
     'y:s'                 => \$sourcesubfield,
@@ -445,7 +447,7 @@ RECORD: while () {
                 $logger->debug("No match for: $query");
             }
 
-            if ( $keepids && $originalid ) {
+            if ( $keepids && $originalid && $originalid != $matched_record_id ) {
                 my $storeidfield;
                 if ( length($keepids) == 3 ) {
                     $storeidfield = MARC::Field->new( $keepids, $originalid );
@@ -456,6 +458,10 @@ RECORD: while () {
                 $record->insert_fields_ordered($storeidfield);
                 $record->delete_field( $record->field($tagid) );
             }
+        }
+
+        if ( $match_record_id && !$matched_record_id && $originalid ) {
+            $matched_record_id = $originalid;
         }
 
         foreach my $stringfilter (@$filters) {
@@ -991,6 +997,12 @@ from LOC or BNF. useless for biblios probably)
 
 I<FIELD> matchindex,fieldtomatch matchpoint to use to deduplicate fieldtomatch
 can be either 001 to 999 or field and list of subfields as such 100abcde
+
+=item B<-match_record_id>
+
+Assume incoming record original id is a valid record id in Koha and use this
+for updating the Koha record.  For example useful when importing previously
++exported records.
 
 =item B<-i, --isbn>
 
