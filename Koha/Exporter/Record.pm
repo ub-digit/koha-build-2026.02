@@ -260,9 +260,7 @@ sub export {
                 my $errorcount_on_decode =
                     eval { scalar( MARC::File::USMARC->decode( $record->as_usmarc )->warnings() ) };
                 if ( $errorcount_on_decode || $@ ) {
-                    my ( $id_tag, $id_subfield ) = GetMarcFromKohaField( 'biblio.biblionumber', '' );
-                    my $record_id = $record->subfield( $id_tag, $id_subfield );
-                    my $msg       = "$record_type $record_id could not be USMARC decoded/encoded. " . ( $@ // '' );
+                    my $msg = "$record_type could not be USMARC decoded/encoded. " . ( $@ // '' );
                     chomp $msg;
                     Koha::Logger->get->warn($msg);
                     return 0;
