@@ -257,10 +257,18 @@ sub export {
         if ( $format eq 'iso2709' ) {
             my $encoding_validator = sub {
                 my ( $record, $record_type ) = @_;
-                my $errorcount_on_decode =
-                    eval { scalar( MARC::File::USMARC->decode( $record->as_usmarc )->warnings() ) };
-                if ( $errorcount_on_decode || $@ ) {
-                    my $msg = "$record_type could not be USMARC decoded/encoded. " . ( $@ // '' );
+                my @decoding_warnings =
+                    eval { MARC::File::USMARC->decode( $record->as_usmarc )->warnings() };
+                my $error = $@;
+                if ( $error || @decoding_warnings ) {
+                    my ( $id_tag, $id_code ) = GetMarcFromKohaField( 'biblio.biblionumber', '' );
+                    my $field = $record->field($id_tag);
+                    my $msg = "$record_type";
+                    if ($field) {
+                        $msg .= " " . $field->is_control_field ? $field->data : $field->subfield($id_code);
+                    }
+                    my $warnings = join(', ', @decoding_warnings);
+                    $msg .= " could not be USMARC decoded/encoded. " . ( $error // $warnings );
                     chomp $msg;
                     Koha::Logger->get->warn($msg);
                     return 0;
