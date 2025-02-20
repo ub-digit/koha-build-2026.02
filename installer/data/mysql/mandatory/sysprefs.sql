@@ -260,7 +260,7 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('EnableAdvancedCatalogingEditor','0',NULL,'Enable the Rancor advanced cataloging editor','YesNo'),
 ('EnableBooking','1',NULL,'If enabled, activate every functionalities related with Bookings module','YesNo'),
 ('EnableBorrowerFiles','0',NULL,'If enabled, allows librarians to upload and attach arbitrary files to a borrower record.','YesNo'),
-('EnableElasticsearchSearchResultExport', '1', '', 'Enable search result export', 'YesNo'),
+('EnableElasticsearchSearchResultExport', '0', '', 'Enable search result export', 'YesNo'),
 ('EnableExpiredPasswordReset', '0', NULL, 'Enable ability for patrons with expired password to reset their password directly', 'YesNo'),
 ('EnableItemGroupHolds','0',NULL,'Enable item groups holds feature','YesNo'),
 ('EnableItemGroups','0',NULL,'Enable the item groups feature','YesNo'),
