@@ -243,7 +243,10 @@ END_SQL
         'Auto_Renewals'    => 9,
         'Advance_Notice'   => 10,
         'Item_Due'         => 11,
-        'Item_Check_in'    => 12
+        'Item_Check_in'    => 12,
+        'Overdue1'         => 13,
+        'Overdue2'         => 14,
+        'Overdue3'         => 15,
     );
 
     @return =
