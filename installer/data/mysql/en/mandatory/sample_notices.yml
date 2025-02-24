@@ -886,6 +886,68 @@ tables:
             - "According to our current records, you have items that are overdue."
             - "Please return or renew your overdue items at the library as soon as possible."
             - ""
+            - "<<branches.branchname>>"
+            - "<<branches.branchaddress1>>"
+            - "<<branches.branchaddress2>> <<branches.branchaddress3>>"
+            - "Phone: <<branches.branchphone>>"
+            - "Fax: <<branches.branchfax>>"
+            - "Email: <<branches.branchemail>>"
+            - ""
+            - "If you have registered a password with the library, and you have a renewal available, you may renew online. If an item becomes more than 30 days overdue, you will be unable to use your library card until the item is returned."
+            - ""
+            - "The following item(s) is/are currently overdue:"
+            - ""
+            - "<item>\"<<biblio.title>>\" by <<biblio.author>>, <<items.itemcallnumber>>, Barcode: <<items.barcode>> Fine: <<items.fine>></item>"
+            - ""
+            - "Thank-you for your prompt attention to this matter."
+            - ""
+            - "<<branches.branchname>> Staff"
+            - ""
+
+        - module: circulation
+          code: ODUE2
+          branchcode: ""
+          name: "Overdue notice"
+          is_html: 0
+          title: "Item overdue"
+          message_transport_type: email
+          lang: default
+          content:
+            - "Dear <<borrowers.firstname>> <<borrowers.surname>>,"
+            - ""
+            - "According to our current records, you have items that are overdue. This is the second reminder. Your library does not charge late fines, but please return or renew them at the branch below as soon as possible."
+            - ""
+            - "<<branches.branchname>>"
+            - "<<branches.branchaddress1>>"
+            - "<<branches.branchaddress2>> <<branches.branchaddress3>>"
+            - "Phone: <<branches.branchphone>>"
+            - "Fax: <<branches.branchfax>>"
+            - "Email: <<branches.branchemail>>"
+            - ""
+            - "If you have registered a password with the library, and you have a renewal available, you may renew online. If an item becomes more than 30 days overdue, you will be unable to use your library card until the item is returned."
+            - ""
+            - "The following item(s) is/are currently overdue:"
+            - ""
+            - "<item>\"<<biblio.title>>\" by <<biblio.author>>, <<items.itemcallnumber>>, Barcode: <<items.barcode>> Fine: <<items.fine>></item>"
+            - ""
+            - "Thank-you for your prompt attention to this matter."
+            - ""
+            - "<<branches.branchname>> Staff"
+            - ""
+
+        - module: circulation
+          code: ODUE3
+          branchcode: ""
+          name: "Overdue notice"
+          is_html: 0
+          title: "Item overdue"
+          message_transport_type: email
+          lang: default
+          content:
+            - "Dear <<borrowers.firstname>> <<borrowers.surname>>,"
+            - ""
+            - "According to our current records, you have items that are overdue. This is the final reminder. Your library does not charge late fines, but please return or renew them at the branch below as soon as possible."
+            - ""
             - "[% branch.branchname %]"
             - "[% branch.branchaddress1 %]"
             - "[% branch.branchaddress2 %] [% branch.branchaddress3 %]"
