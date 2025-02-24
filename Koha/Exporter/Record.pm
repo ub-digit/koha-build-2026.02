@@ -232,38 +232,38 @@ sub export {
     }
 
     if ( $format eq 'xml' || $format eq 'iso2709' ) {
-        my @records;
-        @records = map {
-            my $record = _get_record_for_export( { %{$params}, record_id => $_ } );
-            $record ? $record : ();
-        } @{$record_ids};
+        my @record_ids = reverse @{$record_ids};
+        my @deleted_record_ids = reverse @{$deleted_record_ids};
+        my $deleted_resultset = Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
 
-        my @deleted_records;
-        if ( @{$deleted_record_ids} ) {
-            my $resultset = Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
-
-            @deleted_records = map {
-                my $record = _get_record_for_export(
+        my $records_iterator = sub {
+            if (my $record_id = pop(@record_ids)) {
+                return _get_record_for_export( { %{$params}, record_id => $record_id } );
+            }
+            elsif (my $deleted_record_id = pop(@deleted_record_ids)) {
+                return _get_record_for_export(
                     {
                         %{$params},
                         record_type => 'deleted_bibs',
-                        record_id   => $_,
-                        resultset   => $resultset
+                        record_id   => $deleted_record_id,
+                        resultset   => $deleted_resultset
                     }
                 );
-                $record ? $record : ();
-            } @{$deleted_record_ids};
-        }
-        if ( $format eq 'iso2709' ) {
+            }
+            return;
+        };
+
+        if ($format eq 'iso2709') {
             my $encoding_validator = sub {
-                my ( $record, $record_type ) = @_;
+                my ( $record ) = @_;
                 my @decoding_warnings =
                     eval { MARC::File::USMARC->decode( $record->as_usmarc )->warnings() };
                 my $error = $@;
                 if ( $error || @decoding_warnings ) {
+                    my $record_status = substr $record->leader(), 5, 1;
+                    my $msg = $record_status eq 'd' ? "Deleted record" : "Record";
                     my ( $id_tag, $id_code ) = GetMarcFromKohaField( 'biblio.biblionumber', '' );
                     my $field = $record->field($id_tag);
-                    my $msg = "$record_type";
                     if ($field) {
                         $msg .= " " . $field->is_control_field ? $field->data : $field->subfield($id_code);
                     }
@@ -275,35 +275,31 @@ sub export {
                 }
                 return 1;
             };
-            for my $record ( grep { $encoding_validator->( $_, 'Record' ) } @records ) {
-                print $record->as_usmarc();
-            }
-            if (@deleted_records) {
-                for my $deleted_record ( grep { $encoding_validator->( $_, 'Deleted record' ) } @deleted_records ) {
-                    print $deleted_record->as_usmarc();
+            while (defined ( my $record = $records_iterator->() )) {
+                if ($encoding_validator->($record)) {
+                    print $record->as_usmarc();
                 }
             }
-        } elsif ( $format eq 'xml' ) {
+        } elsif ($format eq 'xml') {
             my $marcflavour = C4::Context->preference("marcflavour");
             MARC::File::XML->default_record_format(
                 ( $marcflavour eq 'UNIMARC' && $record_type eq 'auths' ) ? 'UNIMARCAUTH' : $marcflavour );
             print MARC::File::XML::header();
             print "\n";
-            for my $record ( @records, @deleted_records ) {
+            while (defined ( my $record = $records_iterator->() )) {
                 print MARC::File::XML::record($record);
                 print "\n";
             }
             print MARC::File::XML::footer();
             print "\n";
         }
-    } elsif ( $format eq 'csv' ) {
+    } elsif ($format eq 'csv') {
         die 'There is no valid csv profile defined for this export'
             unless Koha::CsvProfiles->find($csv_profile_id);
         print marc2csv( $record_ids, $csv_profile_id, $itemnumbers );
     }
     close $fh if $output_filepath;
 }
-
 1;
 
 __END__
