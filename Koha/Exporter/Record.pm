@@ -123,9 +123,14 @@ sub _get_deleted_biblio_for_export {
     my ($params) = @_;
     my $biblionumber = $params->{biblionumber};
 
-    # Creating schema is expensive, allow caller to
-    # pass it so don't have to recreate for each call
-    my $resultset       = $params->{resultset} || Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
+    # Creating schema is expensive, so we cache it
+    my $memory_cache = Koha::Cache::Memory::Lite->get_instance();
+    my $resultset = $memory_cache->get_from_cache('_get_deleted_biblio_for_export:resultset');
+    unless ($resultset) {
+        $resultset = Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
+        $memory_cache->set_in_cache('_get_deleted_biblio_for_export:resultset', $resultset);
+    }
+
     my $marc_flavour    = C4::Context->preference('marcflavour');
     my $biblio_metadata = $resultset->find(
         {
@@ -234,7 +239,6 @@ sub export {
     if ( $format eq 'xml' || $format eq 'iso2709' ) {
         my @record_ids = reverse @{$record_ids};
         my @deleted_record_ids = reverse @{$deleted_record_ids};
-        my $deleted_resultset = Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
 
         my $records_iterator = sub {
             if (my $record_id = pop(@record_ids)) {
@@ -245,8 +249,7 @@ sub export {
                     {
                         %{$params},
                         record_type => 'deleted_bibs',
-                        record_id   => $deleted_record_id,
-                        resultset   => $deleted_resultset
+                        record_id   => $deleted_record_id
                     }
                 );
             }
