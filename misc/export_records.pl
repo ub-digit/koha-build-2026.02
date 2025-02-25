@@ -268,11 +268,13 @@ if ( $record_type eq 'bibs' ) {
         if ( $include_deleted || $deleted_only ) {
             push @deleted_record_ids, $_->{biblionumber} for @{
                 $dbh->selectall_arrayref(
-                    q|
-                    SELECT `biblionumber`
-                    FROM `deletedbiblio`
-                    WHERE `timestamp` >= ?
-                |, { Slice => {} }, $timestamp
+                    q{
+                        SELECT `biblionumber`
+                        FROM `deletedbiblio_metadata`
+                        WHERE `timestamp` >= ?
+                    },
+                    { Slice => {} },
+                    $timestamp
                 );
             };
         }
