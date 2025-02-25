@@ -139,6 +139,12 @@ sub _get_deleted_biblio_for_export {
             'schema'       => $marc_flavour
         }
     );
+
+    unless ($biblio_metadata) {
+        Koha::Logger->get->warn("Failed to load deleted biblio with biblionumber \"$biblionumber\"");
+        return
+    }
+
     my $marc_xml = $biblio_metadata->metadata;
     $marc_xml = StripNonXmlChars($marc_xml);
 
