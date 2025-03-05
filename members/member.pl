@@ -79,11 +79,21 @@ if ( $quicksearch and $searchmember ) {
         my @unique_types = Koha::Patron::Attribute::Types->search(
             { 'unique_id' => 1, 'staff_searchable' => 1, 'searched_by_default' => 1 } )->as_list;
         my @attribute_conditions;
+
         for my $type (@unique_types) {
+            my $value = $searchmember;
+
+            if ( $type->code eq 'PNR' && $value =~ /^[0-9]{12}$/ ) {
+                $value = substr $value, 2;
+            }
+
+            next if ( $type->code eq 'PNR' && $value !~ /^[0-9]{10}$/ );
+            next if ( $type->code eq 'PNR12' && $value !~ /^[0-9]{12}$/ );
+
             push @attribute_conditions, [
                 {
                     "extended_attributes.code"      => $type->code,
-                    "extended_attributes.attribute" => $searchmember
+                    "extended_attributes.attribute" => $value
                 }
             ];
         }
