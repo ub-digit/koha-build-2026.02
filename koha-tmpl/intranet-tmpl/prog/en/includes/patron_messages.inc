@@ -350,6 +350,7 @@
                             Read: <em>[% patron_message.patron_read_date | $KohaDates %]</em>
                         [% END %]
                     </span>
+                    [% IF(patron_message.message_type == "N") OR CAN_user_tools_view_system_logs %]
                     [% IF patron_message.branchcode == Branches.GetLoggedInBranchcode OR Koha.Preference('AllowAllMessageDeletion') %]
                         [% IF moremember %]
                             <a
@@ -386,6 +387,7 @@
                             </form>
                         [% END %]
                     [% END %]
+                    [% END %]
                 </li>
             [% END %]
         </ul>
@@ -410,15 +412,15 @@
                                     Message is for:
                                     <select name="message_type" id="edit_message_type" disabled>
                                         [% IF pm.message_type == "L" %]
-                                            <option value="L" selected="selected">Staff - Internal note</option>
+                                            <option value="L" selected="selected">Fakturakommentar</option>
                                         [% ELSE %]
-                                            <option value="L">Staff - Internal note</option>
+                                            <option value="L">Fakturakommentar</option>
                                         [% END %]
 
-                                        [% IF pm.message_type == "B" %]
-                                            <option value="B" selected="selected">OPAC - [% patron.firstname | html %] [% patron.surname | html %]</option>
+                                        [% IF pm.message_type == "N" %]
+                                            <option value="N" selected="selected">Personal - Intern kommentar</option>
                                         [% ELSE %]
-                                            <option value="B">OPAC - [% patron.firstname | html %] [% patron.surname | html %]</option>
+                                            <option value="N">Personal - Intern kommentar</option>
                                         [% END %]
                                     </select>
                                 </label>
