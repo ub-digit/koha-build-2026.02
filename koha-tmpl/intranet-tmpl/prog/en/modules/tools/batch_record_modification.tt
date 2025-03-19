@@ -171,9 +171,7 @@
                 </ol>
             </fieldset>
             <fieldset class="brief" id="modify_all_hint" style="display: none;">
-                <div class="hint">
-                    This will perform the modifications directly, without a confirmation step.
-                </div>
+                <div class="hint"> This will perform the modifications directly, without a confirmation step. </div>
             </fieldset>
             <fieldset class="action">
                 <input type="hidden" name="op" value="cud-list" />
