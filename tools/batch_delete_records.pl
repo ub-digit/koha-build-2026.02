@@ -60,22 +60,22 @@ my $enqueue_job = sub {
 
     try {
         my $params = {
-            record_ids  => $record_ids,
+            record_ids => $record_ids,
         };
 
         my $job_id =
-          $recordtype eq 'biblio'
-          ? Koha::BackgroundJob::BatchDeleteBiblio->new->enqueue($params)
-          : Koha::BackgroundJob::BatchDeleteAuthority->new->enqueue($params);
+            $recordtype eq 'biblio'
+            ? Koha::BackgroundJob::BatchDeleteBiblio->new->enqueue($params)
+            : Koha::BackgroundJob::BatchDeleteAuthority->new->enqueue($params);
 
         $template->param(
-            op => 'enqueued',
+            op     => 'enqueued',
             job_id => $job_id,
         );
     } catch {
         push @messages, {
-            type => 'error',
-            code => 'cannot_enqueue_job',
+            type  => 'error',
+            code  => 'cannot_enqueue_job',
             error => $_,
         };
         $template->param( view => 'errors' );
@@ -83,6 +83,7 @@ my $enqueue_job = sub {
 };
 
 if ( $op eq 'form' ) {
+
     # Display the form
     $template->param(
         op    => 'form',
@@ -94,6 +95,7 @@ if ( $op eq 'form' ) {
         )
     );
 } elsif ( $op eq 'cud-list' || $op eq 'delete_all' ) {
+
     # List all records to process
     my @record_ids;
     if ( my $bib_list = $input->param('bib_list') ) {
@@ -102,6 +104,7 @@ if ( $op eq 'form' ) {
         @record_ids = split /\//, $bib_list;
         $recordtype = 'biblio';
     } elsif ( my $uploadfile = $input->param('uploadfile') ) {
+
         # A file of id is given
         binmode $uploadfile, ':encoding(UTF-8)';
         while ( my $content = <$uploadfile> ) {
@@ -117,30 +120,32 @@ if ( $op eq 'form' ) {
             push @record_ids, $biblionumber;
         }
     } else {
+
         # The user enters manually the list of id
         push @record_ids, split( /\s\n/, scalar $input->param('recordnumber_list') );
     }
     if ( $op eq 'delete_all' ) {
-        $enqueue_job->(\@record_ids, $recordtype);
-    }
-    else {
+        $enqueue_job->( \@record_ids, $recordtype );
+    } else {
         for my $record_id ( uniq @record_ids ) {
             if ( $recordtype eq 'biblio' ) {
+
                 # Retrieve biblio information
-                my $biblio_object = Koha::Biblios->find( $record_id );
-                unless ( $biblio_object ) {
+                my $biblio_object = Koha::Biblios->find($record_id);
+                unless ($biblio_object) {
                     push @messages, {
-                        type => 'warning',
-                        code => 'biblio_not_exists',
+                        type         => 'warning',
+                        code         => 'biblio_not_exists',
                         biblionumber => $record_id,
                     };
                     next;
                 }
                 my $biblio = $biblio_object->unblessed;
                 my $record = $biblio_object->metadata->record;
-                $biblio->{itemnumbers} = [Koha::Items->search({ biblionumber => $record_id })->get_column('itemnumber')];
-                $biblio->{holds_count} = $biblio_object->holds->count;
-                $biblio->{issues_count} = C4::Biblio::CountItemsIssued( $record_id );
+                $biblio->{itemnumbers} =
+                    [ Koha::Items->search( { biblionumber => $record_id } )->get_column('itemnumber') ];
+                $biblio->{holds_count}         = $biblio_object->holds->count;
+                $biblio->{issues_count}        = C4::Biblio::CountItemsIssued($record_id);
                 $biblio->{subscriptions_count} = $biblio_object->subscriptions->count;
 
                 # Respect skip_open_orders
@@ -151,34 +156,36 @@ if ( $op eq 'form' ) {
 
                 push @records, $biblio;
             } else {
+
                 # Retrieve authority information
-                my $authority = C4::AuthoritiesMarc::GetAuthority( $record_id );
-                unless ( $authority ) {
+                my $authority = C4::AuthoritiesMarc::GetAuthority($record_id);
+                unless ($authority) {
                     push @messages, {
-                        type => 'warning',
-                        code => 'authority_not_exists',
+                        type   => 'warning',
+                        code   => 'authority_not_exists',
                         authid => $record_id,
                     };
                     next;
                 }
 
                 $authority = {
-                    authid => $record_id,
-                    summary => C4::AuthoritiesMarc::BuildSummary( $authority, $record_id ),
-                    count_usage => Koha::Authorities->get_usage_count({ authid => $record_id }),
+                    authid      => $record_id,
+                    summary     => C4::AuthoritiesMarc::BuildSummary( $authority, $record_id ),
+                    count_usage => Koha::Authorities->get_usage_count( { authid => $record_id } ),
                 };
                 push @records, $authority;
             }
             $template->param(
                 records => \@records,
-                op => 'list',
+                op      => 'list',
             );
         }
     }
 } elsif ( $op eq 'cud-delete' ) {
+
     # We want to delete selected records!
     my @record_ids = $input->multi_param('record_id');
-    $enqueue_job->(\@record_ids, $recordtype);
+    $enqueue_job->( \@record_ids, $recordtype );
 }
 
 $template->param(
