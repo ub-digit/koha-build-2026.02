@@ -149,7 +149,6 @@
                 [% END # /WRAPPER tab_panels %]
             [% END # /WRAPPER tabs %]
 
-
             <fieldset class="rows">
                 <legend>Next step</legend>
                 <ol>
@@ -159,7 +158,7 @@
             </fieldset>
 
             <fieldset class="action">
-		<input type="hidden" name="op" value="cud-list" />
+                <input type="hidden" name="op" value="cud-list" />
                 <input type="submit" class="btn btn-primary" value="Continue" />
                 <a class="cancel" href="/cgi-bin/koha/cataloguing/cataloging-home.pl">Cancel</a>
             </fieldset>
