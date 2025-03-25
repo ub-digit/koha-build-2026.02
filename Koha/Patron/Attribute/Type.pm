@@ -46,6 +46,9 @@ sub store {
 
     $self->check_repeatables;
     $self->check_unique_ids;
+    $self->check_hidden;
+    $self->check_readonly;
+    $self->check_secret;
 
     return $self->SUPER::store();
 }
@@ -110,6 +113,74 @@ sub check_unique_ids {
         if $count;
 
     return $self;
+}
+
+=head3 check_hidden
+
+=cut
+
+sub check_hidden {
+    my ($self) = @_;
+    if (
+        $self->hidden
+        && (   $self->readonly
+            || $self->secret
+            || $self->opac_display
+            || $self->opac_editable
+            || $self->display_checkout )
+        )
+    {
+        Koha::Exceptions::Patron::Attribute::Type::InvalidPropertyCombination->throw( property => 'hidden' );
+    }
+}
+
+=head3 check_readonly
+
+=cut
+
+sub check_readonly {
+    my ($self) = @_;
+    if (
+        $self->readonly
+        && (   $self->hidden
+            || $self->secret
+            || $self->opac_editable )
+        )
+    {
+        Koha::Exceptions::Patron::Attribute::Type::InvalidPropertyCombination->throw( property => 'readonly' );
+    }
+}
+
+=head3 check_secret
+
+=cut
+
+sub check_secret {
+    my ($self) = @_;
+    if (
+        $self->secret
+        && (   $self->readonly
+            || $self->hidden
+            || $self->opac_display
+            || $self->opac_editable
+            || $self->display_checkout )
+        )
+    {
+        Koha::Exceptions::Patron::Attribute::Type::InvalidPropertyCombination->throw( property => 'hidden' );
+    }
+}
+
+=head3 is_editable
+
+=cut
+
+sub is_editable {
+    my ($self) = @_;
+    my $logged_in_borrowernumber = C4::Context->userenv->{'number'};
+    if ($logged_in_borrowernumber) {
+        my $patron = Koha::Patrons->find($logged_in_borrowernumber);
+        return $patron->_is_superlibrarian && !( $self->hidden || $self->readonly || $self->secret ) if $patron;
+    }
 }
 
 =head3 _type

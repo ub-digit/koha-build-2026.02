@@ -27,7 +27,8 @@
 =cut
 
 use Modern::Perl;
-use CGI qw ( -utf8 );
+use CGI        qw ( -utf8 );
+use List::Util qw ( all );
 use C4::Context;
 use C4::Auth   qw( get_template_and_user );
 use C4::Output qw( output_and_exit_if_error output_and_exit output_html_with_http_headers );
@@ -142,15 +143,16 @@ unless ( Koha::Patron::Categories->search_with_library_limits( { 'me.categorycod
 }
 
 if ( C4::Context->preference('ExtendedPatronAttributes') ) {
-    my @attributes = $patron->extended_attributes->as_list;         # FIXME Must be improved!
-    my @classes    = uniq( map { $_->type->class } @attributes );
+    my $is_superlibrarian = $logged_in_user->is_superlibrarian;
+    my @attributes        = $patron->extended_attributes->as_list;         # FIXME Must be improved!
+    my @classes           = uniq( map { $_->type->class } @attributes );
     @classes = sort @classes;
 
     my @attributes_loop;
     for my $class (@classes) {
         my @items;
         for my $attr (@attributes) {
-            push @items, $attr if $attr->type->class eq $class;
+            push @items, $attr if $attr->type->class eq $class && ( $is_superlibrarian || !$attr->hidden );
         }
         my $av  = Koha::AuthorisedValues->search( { category => 'PA_CLASS', authorised_value => $class } );
         my $lib = $av->count ? $av->next->lib : $class;
@@ -165,9 +167,9 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     $template->param( attributes_loop => \@attributes_loop );
 
     my $library_id = C4::Context->userenv ? C4::Context->userenv->{'branch'} : undef;
-    my $nb_of_attribute_types =
-        Koha::Patron::Attribute::Types->search_with_library_limits( {}, {}, $library_id )->count;
-    if ( $nb_of_attribute_types == 0 ) {
+    my $attribute_types =
+        Koha::Patron::Attribute::Types->search_with_library_limits( {}, {}, $library_id );
+    if ( $attribute_types->count == 0 || ( !$is_superlibrarian && all { $_->hidden } $attribute_types->as_list ) ) {
         $template->param( no_patron_attribute_types => 1 );
     }
 }
