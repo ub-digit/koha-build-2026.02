@@ -139,6 +139,33 @@
                         [% END %]
                         <span class="hint">If checked, attribute will be a unique identifier. If a value is given to a patron record, the same value cannot be given to a different record.</span>
                     </li>
+                    <li>
+                        <label for="hidden">Hidden: </label>
+                        [% IF attribute_type AND attribute_type.hidden %]
+                            <input type="checkbox" id="hidden" name="hidden" checked="checked" />
+                        [% ELSE %]
+                            <input type="checkbox" id="hidden" name="hidden" />
+                        [% END %]
+                        <span class="hint">Check to hide this attribute on a patron's details page in the OPAC and staff interface, and when creating or editing a patron from the staff interface. Does not apply for superlibrarians.</span>
+                    </li>
+                    <li>
+                        <label for="readonly">Readonly: </label>
+                        [% IF attribute_type AND attribute_type.readonly %]
+                            <input type="checkbox" id="readonly" name="readonly" checked="checked" />
+                        [% ELSE %]
+                            <input type="checkbox" id="readonly" name="readonly" />
+                        [% END %]
+                        <span class="hint">Check to make this attribute readonly when creating or editing a patron from the staff interface. Does not apply for superlibrarians.</span>
+                    </li>
+                    <li>
+                        <label for="secret">Secret: </label>
+                        [% IF attribute_type AND attribute_type.secret %]
+                            <input type="checkbox" id="secret" name="secret" checked="checked" />
+                        [% ELSE %]
+                            <input type="checkbox" id="secret" name="secret" />
+                        [% END %]
+                        <span class="hint">Check to mask attribute value on a patron's details page, and hide when creating or editing a patron. Does not apply for superlibrarians.</span>
+                    </li>
                     <li
                         ><label for="is_date">Is a date: </label>
                         [% IF attribute_type AND attribute_type.is_date %]
@@ -459,6 +486,55 @@
             if ($("#branches option:selected").length < 1) {
                 $("#branches option:first").attr("selected", "selected");
             }
+            $("#hidden")
+                .change(function () {
+                    if (this.checked) {
+                        $("#opac_editable").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#opac_display").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#readonly").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#secret").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#display_checkout").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                    } else {
+                        $("#opac_editable").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#opac_display").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#readonly").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#secret").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#display_checkout").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                    }
+                })
+                .change();
+
+            $("#readonly")
+                .change(function () {
+                    if (this.checked) {
+                        $("#opac_editable").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#hidden").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#secret").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                    } else {
+                        $("#opac_editable").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#hidden").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#secret").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                    }
+                })
+                .change();
+
+            $("#secret")
+                .change(function () {
+                    if (this.checked) {
+                        $("#opac_editable").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#opac_display").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#hidden").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#readony").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                        $("#display_checkout").attr("disabled", true).prop("checked", false).parent().attr("aria-disabled", "true");
+                    } else {
+                        $("#opac_editable").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#opac_display").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#hidden").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#readonly").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                        $("#display_checkout").removeAttr("disabled").parent().removeAttr("aria-disabled");
+                    }
+                })
+                .change();
 
             $("#is_date")
                 .change(function () {
