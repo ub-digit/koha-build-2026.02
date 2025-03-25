@@ -19,6 +19,7 @@ use Modern::Perl;
 
 use Koha::Patron::Attribute::Type;
 use C4::Koha qw( GetAuthorisedValues );
+use List::Util qw ( all );
 
 use base qw(Koha::Objects Koha::Objects::Limit::Library);
 
@@ -47,14 +48,17 @@ Params:
 =cut
 
 sub patron_attributes_form {
-    my $template   = shift;
-    my $attributes = shift;
-    my $op         = shift;
-    my $query      = shift // {};
+    my $template       = shift;
+    my $logged_in_user = shift;
+    my $attributes     = shift;
+    my $op             = shift;
+    my $query          = shift // {};
 
     my $library_id      = C4::Context->userenv ? C4::Context->userenv->{'branch'} : undef;
     my $attribute_types = Koha::Patron::Attribute::Types->search_with_library_limits( $query, {}, $library_id );
-    if ( $attribute_types->count == 0 ) {
+    if ( $attribute_types->count == 0
+        || ( !$logged_in_user->is_superlibrarian && all { $_->hidden } $attribute_types->as_list ) )
+    {
         $template->param( no_patron_attribute_types => 1 );
         return;
     }
@@ -68,12 +72,18 @@ sub patron_attributes_form {
     my @attribute_loop = ();
     my $i              = 0;
     my %items_by_class;
+    my @hidden_attributes;
+    my $is_superlibrarian = $logged_in_user->is_superlibrarian;
+
     while ( my ($attr_type) = $attribute_types->next ) {
         my $entry = {
             class         => $attr_type->class(),
             code          => $attr_type->code(),
             description   => $attr_type->description(),
             repeatable    => $attr_type->repeatable(),
+            hidden        => !$is_superlibrarian && $attr_type->hidden(),
+            readonly      => !$is_superlibrarian && $attr_type->readonly(),
+            secret        => !$is_superlibrarian && $attr_type->secret(),
             category      => $attr_type->authorised_value_category(),
             category_code => $attr_type->category_code(),
             mandatory     => $attr_type->mandatory(),
@@ -84,23 +94,28 @@ sub patron_attributes_form {
                 my $newentry = {%$entry};
                 $newentry->{value}        = $attr->{attribute};
                 $newentry->{use_dropdown} = 0;
-                if ( $attr_type->authorised_value_category() ) {
-                    $newentry->{use_dropdown} = 1;
-                    $newentry->{auth_val_loop} =
-                        C4::Koha::GetAuthorisedValues( $attr_type->authorised_value_category(), $attr->{attribute} );
+
+                if ( !$is_superlibrarian && ( $attr_type->hidden() || $attr_type->secret() ) ) {
+                    push @hidden_attributes, $newentry;
+                } else {
+                    if ( $attr_type->authorised_value_category() ) {
+                        $newentry->{use_dropdown} = 1;
+                        $newentry->{auth_val_loop} =
+                            GetAuthorisedValues( $attr_type->authorised_value_category(), $attr->{attribute} );
+                    }
+                    undef $newentry->{value} if ( $attr_type->unique_id() && $op eq 'duplicate' );
+                    $i++;
+                    $newentry->{form_id} = "patron_attr_$i";
+                    push @{ $items_by_class{ $attr_type->class() } }, $newentry;
                 }
-                $i++;
-                undef $newentry->{value} if ( $attr_type->unique_id() && $op eq 'duplicate' );
-                $newentry->{form_id} = "patron_attr_$i";
-                push @{ $items_by_class{ $attr_type->class() } }, $newentry;
             }
         } else {
-            $i++;
             my $newentry = {%$entry};
             if ( $attr_type->authorised_value_category() ) {
                 $newentry->{use_dropdown}  = 1;
                 $newentry->{auth_val_loop} = C4::Koha::GetAuthorisedValues( $attr_type->authorised_value_category() );
             }
+            $i++;
             $newentry->{form_id} = "patron_attr_$i";
             push @{ $items_by_class{ $attr_type->class() } }, $newentry;
         }
@@ -115,8 +130,7 @@ sub patron_attributes_form {
         };
     }
 
-    $template->param( patron_attributes => \@attribute_loop );
-
+    $template->param( patron_attributes => \@attribute_loop, hidden_patron_attributes => \@hidden_attributes );
 }
 
 =head2 Internal methods

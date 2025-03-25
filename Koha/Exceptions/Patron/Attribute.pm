@@ -28,6 +28,11 @@ use Exception::Class (
         isa         => 'Koha::Exceptions::Patron::Attribute',
         description => "the passed value is invalid for attribute type",
         fields      => ["attribute"]
+    },
+    'Koha::Exceptions::Patron::Attribute::NonEditable' => {
+        isa         => 'Koha::Exceptions::Patron::Attribute',
+        description => "Cannot to modify value of non editable attribute type",
+        fields      => ["type"]
     }
 );
 
@@ -59,6 +64,11 @@ sub full_message {
                 "Tried to use an invalid value for attribute type. type=%s value=%s",
                 $self->attribute->code,
                 $self->attribute->attribute
+            );
+        } elsif ( $self->isa('Koha::Exceptions::Patron::Attribute::NonEditable') ) {
+            $msg = sprintf(
+                "Cannot change value pf non editable attribute type. type=%s",
+                $self->type
             );
         }
     }
