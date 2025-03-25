@@ -14,6 +14,11 @@ use Exception::Class (
         description => "Cannot change property",
         fields      => ['property'],
     },
+    'Koha::Exceptions::Patron::Attribute::Type::InvalidPropertyCombination' => {
+        isa         => 'Koha::Exceptions::Patron::Attribute::Type',
+        description => "An invalid property combination has been set",
+        fields      => ['property'],
+    },
 );
 
 sub full_message {
@@ -25,6 +30,11 @@ sub full_message {
         if ( $self->isa('Koha::Exceptions::Patron::Attribute::Type::CannotChangeProperty') ) {
             $msg = sprintf(
                 "The property '%s' cannot be changed, some patron attributes are using it that way.",
+                $self->property
+            );
+        } elsif ( $self->isa('Koha::Exceptions::Patron::Attribute::Type::InvalidPropertyCombination') ) {
+            $msg = sprintf(
+                "The property '%s' is incompatible with the current combination of properties",
                 $self->property
             );
         }
