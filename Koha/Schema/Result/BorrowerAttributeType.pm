@@ -155,6 +155,37 @@ defines if the attribute is mandatory or not in the OPAC
 
 =cut
 
+=head2 hidden
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+defines if the attribute is hidden or not
+
+=cut
+
+=head2 readonly
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+defines if the attribute is readonly or not
+
+=cut
+
+=head2 secret
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+defines if the attribute is secret or not
+
+=cut
+
+
 __PACKAGE__->add_columns(
   "code",
   { data_type => "varchar", is_nullable => 0, size => 64 },
@@ -187,6 +218,12 @@ __PACKAGE__->add_columns(
   "mandatory",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "opac_mandatory",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "hidden",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "readonly",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "secret",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
 );
 
