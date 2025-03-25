@@ -2575,14 +2575,31 @@ sub add_extended_attribute {
 
 =head3 extended_attributes
 
-Return object of Koha::Patron::Attributes type with all attributes set for this patron
+Getter/setter for Koha::Patron::Attributes. Always return the extended attributes of the patron.
 
 Or setter FIXME
+
+=over 4
+
+=item C<$extended_attributes>
+
+The extended attributes to set on the format [{ code => $code, attribute => $value }, ...].
+All extended attributes of the patron must be provided.
+
+=item C<$params>
+
+A hashfre for Optional parameters.
+
+if called from within the staff interface C<check_editable> must be set so that
+attribute type settings making the attribute non editable are enforced.
+
+=back
 
 =cut
 
 sub extended_attributes {
-    my ( $self, $attributes ) = @_;
+    my ( $self, $attributes, $params ) = @_;
+    $params //= {};
 
     if ($attributes) {    # setter
         my %attribute_changes;
@@ -2637,6 +2654,12 @@ sub extended_attributes {
                         $change->{after}  //= [];
 
                         if ( $is_different->( $change->{before}, $change->{after} ) ) {
+                            if ( $params->{check_editable} ) {
+                                my $type = Koha::Patron::Attribute::Types->find($code);
+                                unless ( $type->is_editable ) {
+                                    Koha::Exceptions::Patron::Attribute::NonEditable->throw( type => $code );
+                                }
+                            }
                             $changed_attributes_codes{$code} = 1;
 
                             unless ($repeatable) {

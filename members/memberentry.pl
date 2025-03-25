@@ -165,8 +165,9 @@ foreach (@field_check) {
 $template->param( "quickadd"  => 1 ) if ($quickadd);
 $template->param( "duplicate" => 1 ) if ( $op eq 'duplicate' );
 $template->param( "checked"   => 1 ) if ( defined($nodouble) && $nodouble eq 1 );
+my $logged_in_user = Koha::Patrons->find($loggedinuser);
+
 if ( $op eq 'edit_form' or $op eq 'cud-save' or $op eq 'duplicate' ) {
-    my $logged_in_user = Koha::Patrons->find($loggedinuser);
     output_and_exit_if_error(
         $input, $cookie, $template,
         { module => 'members', logged_in_user => $logged_in_user, current_patron => $patron }
@@ -660,7 +661,7 @@ if ( ( !$nok ) and $nodouble and ( $op eq 'cud-insert' or $op eq 'cud-save' ) ) 
         if ( C4::Context->preference('ExtendedPatronAttributes')
             and $input->param('setting_extended_patron_attributes') )
         {
-            $patron->extended_attributes($extended_patron_attributes);
+            $patron->extended_attributes( $extended_patron_attributes, { check_editable => 1 } );
         }
 
         if (
@@ -867,7 +868,7 @@ if ( C4::Context->preference('uppercasesurnames') ) {
 }
 
 if ( C4::Context->preference('ExtendedPatronAttributes') ) {
-    Koha::Patron::Attribute::Types::patron_attributes_form( $template, $extended_patron_attributes, $op );
+    Koha::Patron::Attribute::Types::patron_attributes_form( $template, $logged_in_user, $extended_patron_attributes, $op );
 }
 
 if ( C4::Context->preference('EnhancedMessagingPreferences') ) {
