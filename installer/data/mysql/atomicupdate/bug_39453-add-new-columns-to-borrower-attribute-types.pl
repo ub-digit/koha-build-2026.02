@@ -9,7 +9,7 @@ return {
         my ( $dbh, $out ) = @$args{qw(dbh out)};
 
         $dbh->do(
-            q{ALTER TABLE `borrower_attribute_types` ADD COLUMN `hidden` tinyint(1) NOT NULL DEFAULT 0, ADD COLUMN `readonly` tinyint(1) NOT NULL DEFAULT 0, ADD COLUMN `secret` tinyint(1) NOT NULL DEFAULT 0}
+            q{ALTER TABLE `borrower_attribute_types` ADD COLUMN IF NOT EXISTS `hidden` tinyint(1) NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS `readonly` tinyint(1) NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS `secret` tinyint(1) NOT NULL DEFAULT 0}
         );
 
         say $out
