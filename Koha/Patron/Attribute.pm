@@ -20,8 +20,10 @@ use Modern::Perl;
 use Koha::Database;
 use Koha::Exceptions::Patron::Attribute;
 use Koha::Patron::Attribute::Types;
+use Koha::Patron::Attributes;
 use Koha::AuthorisedValues;
 use Koha::DateUtils qw( dt_from_string );
+use C4::Context;
 
 use base qw(Koha::Object);
 
