@@ -142,7 +142,7 @@ sub _get_deleted_biblio_for_export {
 
     unless ($biblio_metadata) {
         Koha::Logger->get->warn("Failed to load deleted biblio with biblionumber \"$biblionumber\"");
-        return;
+        return 0;
     }
 
     my $marc_xml = $biblio_metadata->metadata;
@@ -151,7 +151,7 @@ sub _get_deleted_biblio_for_export {
     my $record = eval { MARC::Record::new_from_xml( $marc_xml, 'UTF-8', $marc_flavour ) };
     if ( !$record ) {
         Koha::Logger->get->warn("Failed to load MARCXML for deleted biblio with biblionumber \"$biblionumber\": $@");
-        return;
+        return 0;
     }
 
     # Set deleted flag (record status, position 05)
