@@ -367,7 +367,7 @@ subtest '_get_record_for_export MARC field conditions' => sub {
             record_type       => 'bibs',
         }
     );
-    is( $record, undef, "Record condition \"080a!=12345\" should not match" );
+    is( $record, 0, "Record condition \"080a!=12345\" should not match" );
 
     $record = Koha::Exporter::Record::_get_record_for_export(
         {
@@ -394,7 +394,7 @@ subtest '_get_record_for_export MARC field conditions' => sub {
             record_type       => 'bibs',
         }
     );
-    is( $record, undef, "Record condition \"080a>123456\" should not match" );
+    is( $record, 0, "Record condition \"080a>123456\" should not match" );
 
     ## Multiple subfields
 
@@ -414,8 +414,7 @@ subtest '_get_record_for_export MARC field conditions' => sub {
             record_type       => 'bibs',
         }
     );
-    is( $record, undef, "Record condition \"035a=TEST(1234)\" should not match" )
-        ;    # Since matching all subfields required
+    is( $record, 0, "Record condition \"035a=TEST(1234)\" should not match" );   # Since matching all subfields required
 
     ## Multiple conditions
 
@@ -435,7 +434,7 @@ subtest '_get_record_for_export MARC field conditions' => sub {
             record_type       => 'bibs',
         }
     );
-    is( $record, undef, "Record condition \"035a!=TEST(12345),080a<1234\" should not match" );
+    is( $record, 0, "Record condition \"035a!=TEST(12345),080a<1234\" should not match" );
 
     ## exists/not_exists
 
@@ -456,7 +455,7 @@ subtest '_get_record_for_export MARC field conditions' => sub {
             record_type       => 'bibs',
         }
     );
-    is( $record, undef, "Record condition \"not_exists(035a)\" should not match" );
+    is( $record, 0, "Record condition \"not_exists(035a)\" should not match" );
 };
 
 $schema->storage->txn_rollback;
