@@ -91,7 +91,7 @@ sub _get_record_for_export {
     }
     if ( !$record ) {
         Koha::Logger->get->warn("Record $record_id with record type $record_type could not be exported.");
-        return;
+        return 0;
     }
 
     if ($dont_export_fields) {
@@ -114,7 +114,7 @@ sub _get_record_for_export {
         }
     }
 
-    return                            if $conditions && !_record_match_conditions( $record, $conditions );
+    return 0                          if $conditions && !_record_match_conditions( $record, $conditions );
     C4::Biblio::RemoveAllNsb($record) if $clean;
     return $record;
 }
@@ -125,10 +125,10 @@ sub _get_deleted_biblio_for_export {
 
     # Creating schema is expensive, so we cache it
     my $memory_cache = Koha::Cache::Memory::Lite->get_instance();
-    my $resultset = $memory_cache->get_from_cache('_get_deleted_biblio_for_export:resultset');
+    my $resultset    = $memory_cache->get_from_cache('_get_deleted_biblio_for_export:resultset');
     unless ($resultset) {
         $resultset = Koha::Database->new()->schema()->resultset('DeletedbiblioMetadata');
-        $memory_cache->set_in_cache('_get_deleted_biblio_for_export:resultset', $resultset);
+        $memory_cache->set_in_cache( '_get_deleted_biblio_for_export:resultset', $resultset );
     }
 
     my $marc_flavour    = C4::Context->preference('marcflavour');
@@ -142,7 +142,7 @@ sub _get_deleted_biblio_for_export {
 
     unless ($biblio_metadata) {
         Koha::Logger->get->warn("Failed to load deleted biblio with biblionumber \"$biblionumber\"");
-        return
+        return;
     }
 
     my $marc_xml = $biblio_metadata->metadata;
@@ -243,14 +243,13 @@ sub export {
     }
 
     if ( $format eq 'xml' || $format eq 'iso2709' ) {
-        my @record_ids = reverse @{$record_ids};
+        my @record_ids         = reverse @{$record_ids};
         my @deleted_record_ids = reverse @{$deleted_record_ids};
 
         my $records_iterator = sub {
-            if (my $record_id = pop(@record_ids)) {
+            if ( my $record_id = pop(@record_ids) ) {
                 return _get_record_for_export( { %{$params}, record_id => $record_id } );
-            }
-            elsif (my $deleted_record_id = pop(@deleted_record_ids)) {
+            } elsif ( my $deleted_record_id = pop(@deleted_record_ids) ) {
                 return _get_record_for_export(
                     {
                         %{$params},
@@ -262,9 +261,9 @@ sub export {
             return;
         };
 
-        if ($format eq 'iso2709') {
+        if ( $format eq 'iso2709' ) {
             my $encoding_validator = sub {
-                my ( $record ) = @_;
+                my ($record) = @_;
                 my @decoding_warnings =
                     eval { MARC::File::USMARC->decode( $record->as_usmarc )->warnings() };
                 my $error = $@;
@@ -276,7 +275,7 @@ sub export {
                     if ($field) {
                         $msg .= " " . $field->is_control_field ? $field->data : $field->subfield($id_code);
                     }
-                    my $warnings = join(', ', @decoding_warnings);
+                    my $warnings = join( ', ', @decoding_warnings );
                     $msg .= " could not be USMARC decoded/encoded. " . ( $error // $warnings );
                     chomp $msg;
                     Koha::Logger->get->warn($msg);
@@ -284,25 +283,25 @@ sub export {
                 }
                 return 1;
             };
-            while (defined ( my $record = $records_iterator->() )) {
-                if ($encoding_validator->($record)) {
-                    print $record->as_usmarc();
-                }
+            while ( defined( my $record = $records_iterator->() ) ) {
+                next unless $record && $encoding_validator->($record);
+                print $record->as_usmarc();
             }
-        } elsif ($format eq 'xml') {
+        } elsif ( $format eq 'xml' ) {
             my $marcflavour = C4::Context->preference("marcflavour");
             MARC::File::XML->default_record_format(
                 ( $marcflavour eq 'UNIMARC' && $record_type eq 'auths' ) ? 'UNIMARCAUTH' : $marcflavour );
             print MARC::File::XML::header();
             print "\n";
-            while (defined ( my $record = $records_iterator->() )) {
+            while ( defined( my $record = $records_iterator->() ) ) {
+                next unless $record;
                 print MARC::File::XML::record($record);
                 print "\n";
             }
             print MARC::File::XML::footer();
             print "\n";
         }
-    } elsif ($format eq 'csv') {
+    } elsif ( $format eq 'csv' ) {
         die 'There is no valid csv profile defined for this export'
             unless Koha::CsvProfiles->find($csv_profile_id);
         print marc2csv( $record_ids, $csv_profile_id, $itemnumbers );
