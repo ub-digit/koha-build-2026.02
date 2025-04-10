@@ -46,7 +46,7 @@ my $searchmember = $input->param('searchmember');
 my $quicksearch  = $input->param('quicksearch') // 0;
 my $circsearch   = $input->param('circsearch')  // 0;
 
-if ( $quicksearch and $searchmember && !$circsearch ) {
+if ( $quicksearch and $searchmember ) {
     my $branchcode;
     if (C4::Context::only_my_library) {
         my $userenv = C4::Context->userenv;
@@ -60,7 +60,9 @@ if ( $quicksearch and $searchmember && !$circsearch ) {
                 or ( not $branchcode ) )
             )
         {
-            print $input->redirect( "/cgi-bin/koha/members/moremember.pl?borrowernumber=" . $patron->borrowernumber );
+            my $redirect_url =
+                $circsearch ? '/cgi-bin/koha/circ/circulation.pl' : '/cgi-bin/koha/members/moremember.pl';
+            print $input->redirect( "$redirect_url?borrowernumber=" . $patron->borrowernumber );
             exit;
         }
     };
@@ -72,8 +74,10 @@ if ( $quicksearch and $searchmember && !$circsearch ) {
     $maybe_redirect->($patron) if ($patron);
 
     if ( C4::Context->preference('UniqueExtendedAttributesQuickSearch') ) {
+
         # Search all unique patron attributes
-        my @unique_types = Koha::Patron::Attribute::Types->search( { 'unique_id' => 1, 'staff_searchable' => 1, 'searched_by_default' => 1 } )->as_list;
+        my @unique_types = Koha::Patron::Attribute::Types->search(
+            { 'unique_id' => 1, 'staff_searchable' => 1, 'searched_by_default' => 1 } )->as_list;
         my @attribute_conditions;
         for my $type (@unique_types) {
             push @attribute_conditions, [
@@ -85,7 +89,8 @@ if ( $quicksearch and $searchmember && !$circsearch ) {
         }
 
         if (@attribute_conditions) {
-            my @patrons = Koha::Patrons->search( \@attribute_conditions, { prefetch => ['extended_attributes'] } )->as_list;
+            my @patrons =
+                Koha::Patrons->search( \@attribute_conditions, { prefetch => ['extended_attributes'] } )->as_list;
 
             # The only case where could be more than one is when multiple unique attribute has the same value for different patrons
             # which should be unlikely. If that is the case we should perform a full search.
