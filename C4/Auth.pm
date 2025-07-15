@@ -1246,9 +1246,8 @@ sub checkauth {
 
                             # we have to check they are coming from the right ip range
                             my $domain = $branches->{$branchcode}->{'branchip'} // q{};
-                            $domain =~ s|\.\*||g;
-                            $domain =~ s/\s+//g;
-                            if ( $domain && $ip !~ /^$domain/ ) {
+                            next unless ($domain);
+                            if ( !in_iprange($domain) ) {
                                 $cookie = $cookie_mgr->replace_in_list(
                                     $cookie,
                                     $query->cookie(
@@ -1284,7 +1283,8 @@ sub checkauth {
 
                                 #     now we work with the treatment of ip
                                 my $domain = $branches->{$br}->{'branchip'};
-                                if ( $domain && $ip =~ /^$domain/ ) {
+                                next unless ($domain);
+                                if ( in_iprange($domain) ) {
                                     $branchcode = $branches->{$br}->{'branchcode'};
 
                                     # new op dev : add the branchname to the cookie
@@ -1759,7 +1759,8 @@ sub check_api_auth {
 
                     #     now we work with the treatment of ip
                     my $domain = $branches->{$br}->{'branchip'};
-                    if ( $domain && $ip =~ /^$domain/ ) {
+                    next unless ($domain);
+                    if ( in_iprange($domain) ) {
                         $branchcode = $branches->{$br}->{'branchcode'};
 
                         # new op dev : add the branchname to the cookie
@@ -2401,8 +2402,11 @@ Returns 1 if the remote address is in the provided iprange, or 0 otherwise.
 =cut
 
 sub in_iprange {
-    my ($iprange)       = @_;
-    my $result          = 1;
+    my ($iprange) = @_;
+    my $result = 0;
+
+    # FIXME remove '*' for backwards compatibility in branchip settings
+    $iprange =~ s|\*||g if ($iprange);
     my @allowedipranges = $iprange ? split( ' ', $iprange ) : ();
     if ( scalar @allowedipranges > 0 ) {
         my @rangelist;
