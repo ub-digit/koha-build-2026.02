@@ -13,7 +13,7 @@ values
 (11, 'Ill_update', 0),
 (12, 'Recall_Waiting', 0),
 (13, 'Recall_Requested', 0),
-(14, 'Patron_Expiry', 0)
+(14, 'Patron_Expiry', 0),
 (15, 'Overdue1', 0),
 (16, 'Overdue2', 0),
 (17, 'Overdue3', 0);
