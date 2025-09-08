@@ -750,18 +750,17 @@ END_SQL
                 $item_statement->finish;
 
                 my @message_transport_types;
-                if (C4::Context->preference('UsePatronPreferencesForOverdueNotices')) {
-                    my $patronpref = GetMessagingPreferences(
-                        { borrowernumber => $borrowernumber, message_name => "Overdue$i"});
-                    if ($patronpref && $patronpref->{'transports'}) {
-                        @message_transport_types = keys %{$patronpref->{'transports'}};
+                if ( C4::Context->preference('UsePatronPreferencesForOverdueNotices') ) {
+                    my $patronpref = C4::Members::Messaging::GetMessagingPreferences(
+                        { borrowernumber => $borrowernumber, message_name => "Overdue$i" } );
+                    if ( $patronpref && $patronpref->{'transports'} ) {
+                        @message_transport_types = keys %{ $patronpref->{'transports'} };
                     }
                     my $print_behavior = C4::Context->preference('UsePatronPreferencesForOverdueNoticesPrint');
-                    if (
-                        $print_behavior eq 'always' ||
-                        $print_behavior eq 'fallback' && !@message_transport_types
-                    ) {
-                        unshift(@message_transport_types, 'shift');
+                    if (   $print_behavior eq 'always'
+                        || $print_behavior eq 'fallback' && !@message_transport_types )
+                    {
+                        unshift( @message_transport_types, 'shift' );
                     }
                 } else {
                     my @message_transport_types =
