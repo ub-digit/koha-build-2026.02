@@ -756,13 +756,15 @@ END_SQL
                     if ( $patronpref && $patronpref->{'transports'} ) {
                         @message_transport_types = keys %{ $patronpref->{'transports'} };
                     }
-                } else {
-                    my @message_transport_types =
-                        @{ GetOverdueMessageTransportTypes( $branchcode, $overdue_rules->{categorycode}, $i ) };
-                    @message_transport_types =
-                        @{ GetOverdueMessageTransportTypes( q{}, $overdue_rules->{categorycode}, $i ) }
-                        unless @message_transport_types;
                 }
+
+                @message_transport_types =
+                    @{ GetOverdueMessageTransportTypes( $branchcode, $overdue_rules->{categorycode}, $i ) }
+                    unless @message_transport_types;
+
+                @message_transport_types =
+                    @{ GetOverdueMessageTransportTypes( q{}, $overdue_rules->{categorycode}, $i ) }
+                    unless @message_transport_types;
 
                 my $print_sent = 0;    # A print notice is not yet sent for this patron
                 for my $mtt (@message_transport_types) {
