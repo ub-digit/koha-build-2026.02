@@ -886,7 +886,6 @@ INSERT INTO systempreferences ( `variable`, `value`, `options`, `explanation`, `
 ('UseLocationAsAQInSIP', '0', NULL, 'Use permanent_location instead of homebranch for AQ in SIP response', 'YesNo'),
 ('UseOCLCEncodingLevels','0',NULL,'If enabled, include OCLC encoding levels in leader value builder dropdown for position 17.','YesNo'),
 ('UsePatronPreferencesForOverdueNotices', '0', NULL, 'Use patron specific messaging preferences for overdue notices if available', 'YesNo'),
-('UsePatronPreferencesForOverdueNoticesPrint', 'always', 'always|fallback|never', 'When to send print notices when using patron specific messaging preferences for overdue notices', 'Choice'),
 ('UseRecalls','0',NULL,'Enable or disable recalls','YesNo'),
 ('UseTransportCostMatrix','0',NULL,'Use Transport Cost Matrix when filling holds','YesNo'),
 ('UseWYSIWYGinSystemPreferences','0',NULL,'Show WYSIWYG editor when editing certain HTML system preferences.','YesNo'),
