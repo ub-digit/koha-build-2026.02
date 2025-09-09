@@ -1,11 +1,11 @@
 use Modern::Perl;
 
 return {
-    bug_number => "30515",
+    bug_number  => "30515",
     description => "Add system preferences for patron specific overdue notice preferences",
-    up => sub {
+    up          => sub {
         my ($args) = @_;
-        my ($dbh, $out) = @$args{qw(dbh out)};
+        my ( $dbh, $out ) = @$args{qw(dbh out)};
 
         $dbh->do(
             q{
@@ -49,18 +49,5 @@ return {
         );
         say $out "UsePatronPreferencesForOverdueNotices system preference added";
 
-        $dbh->do(
-            q{
-                INSERT IGNORE INTO systempreferences (`variable`, `value`, `options`, `explanation`, `type`)
-                VALUES (
-                    'UsePatronPreferencesForOverdueNoticesPrint',
-                    'always',
-                    'always|fallback|never',
-                    'When to send print notices when using patron specific messaging preferences for overdue notices',
-                    'Choice'
-                )
-            }
-        );
-        say $out "UsePatronPreferencesForOverdueNoticesPrint system preference added";
     },
-}
+    }
