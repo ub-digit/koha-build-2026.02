@@ -756,12 +756,6 @@ END_SQL
                     if ( $patronpref && $patronpref->{'transports'} ) {
                         @message_transport_types = keys %{ $patronpref->{'transports'} };
                     }
-                    my $print_behavior = C4::Context->preference('UsePatronPreferencesForOverdueNoticesPrint');
-                    if (   $print_behavior eq 'always'
-                        || $print_behavior eq 'fallback' && !@message_transport_types )
-                    {
-                        unshift( @message_transport_types, 'shift' );
-                    }
                 } else {
                     my @message_transport_types =
                         @{ GetOverdueMessageTransportTypes( $branchcode, $overdue_rules->{categorycode}, $i ) };
