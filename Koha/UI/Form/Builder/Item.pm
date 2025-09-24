@@ -474,7 +474,7 @@ sub edit_form {
     my $prefill_with_default_values              = $params->{prefill_with_default_values};
     my $branch_limit                             = $params->{branch_limit};
     my $default_branches_empty                   = $params->{default_branches_empty};
-    my $ignore_non_mandatory_invisible_subfields = $params->{ignore_invisible_subfields} || 0;
+    my $ignore_non_mandatory_invisible_subfields = $params->{ignore_non_mandatory_invisible_subfields} || 0;
 
     my $libraries =
         Koha::Libraries->search( {}, { order_by => ['branchname'] } )->unblessed;
