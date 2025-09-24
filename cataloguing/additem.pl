@@ -790,7 +790,7 @@ my $subfields =
         branch_limit                => C4::Context->userenv->{"branch"},
         (
             $op eq 'dupeitem'
-            ? ( ignore_invisible_subfields => 1 )
+            ? ( ignore_non_mandatory_invisible_subfields => 1 )
             : ()
         ),
     }
