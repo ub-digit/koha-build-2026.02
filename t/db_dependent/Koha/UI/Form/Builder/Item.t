@@ -325,7 +325,7 @@ subtest 'subfields_to_allow & ignore_not_allowed_subfields' => sub {
     is( $subfield, undef, "subfield that is not in the allow list is not returned" );
 };
 
-subtest 'ignore_invisible_subfields' => sub {
+subtest 'ignore_non_mandatory_invisible_subfields' => sub {
     plan tests => 2;
 
     my $biblio =
@@ -351,11 +351,11 @@ subtest 'ignore_invisible_subfields' => sub {
             biblionumber => $biblio->biblionumber,
             item         => $item->unblessed,
         }
-    )->edit_form( { ignore_invisible_subfields => 1 } );
+    )->edit_form( { ignore_non_mandatory_invisible_subfields => 1 } );
     ($subfield) = grep { $_->{subfield} eq 'l' } @$subfields;
     is(
         $subfield->{marc_value}->{value},
-        undef, 'items.issues not copied if ignore_invisible_subfields is passed'
+        undef, 'items.issues not copied if ignore_non_mandatory_invisible_subfields is passed'
     );
 };
 
