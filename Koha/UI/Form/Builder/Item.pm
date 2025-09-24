@@ -454,7 +454,7 @@ Flag to add an empty option to the library list.
 
 =item ignore_non_mandatory_invisible_subfields
 
-Skip the subfields that are not visible on the editor.
+Skip the non mandatory subfields that are not visible in the editor.
 
 When duplicating an item we do not want to retrieve the subfields that are hidden.
 
