@@ -452,7 +452,7 @@ Limit info depending on the library (so far only item types).
 
 Flag to add an empty option to the library list.
 
-=item ignore_invisible_subfields
+=item ignore_non_mandatory_invisible_subfields
 
 Skip the subfields that are not visible on the editor.
 
@@ -465,16 +465,16 @@ When duplicating an item we do not want to retrieve the subfields that are hidde
 sub edit_form {
     my ( $self, $params ) = @_;
 
-    my $branchcode                   = $params->{branchcode};
-    my $restricted_edition           = $params->{restricted_editition};
-    my $subfields_to_prefill         = $params->{subfields_to_prefill} || [];
-    my $subfields_to_allow           = $params->{subfields_to_allow}   || [];
-    my $ignore_not_allowed_subfields = $params->{ignore_not_allowed_subfields};
-    my $kohafields_to_ignore         = $params->{kohafields_to_ignore} || [];
-    my $prefill_with_default_values  = $params->{prefill_with_default_values};
-    my $branch_limit                 = $params->{branch_limit};
-    my $default_branches_empty       = $params->{default_branches_empty};
-    my $ignore_invisible_subfields   = $params->{ignore_invisible_subfields} || 0;
+    my $branchcode                               = $params->{branchcode};
+    my $restricted_edition                       = $params->{restricted_editition};
+    my $subfields_to_prefill                     = $params->{subfields_to_prefill} || [];
+    my $subfields_to_allow                       = $params->{subfields_to_allow}   || [];
+    my $ignore_not_allowed_subfields             = $params->{ignore_not_allowed_subfields};
+    my $kohafields_to_ignore                     = $params->{kohafields_to_ignore} || [];
+    my $prefill_with_default_values              = $params->{prefill_with_default_values};
+    my $branch_limit                             = $params->{branch_limit};
+    my $default_branches_empty                   = $params->{default_branches_empty};
+    my $ignore_non_mandatory_invisible_subfields = $params->{ignore_invisible_subfields} || 0;
 
     my $libraries =
         Koha::Libraries->search( {}, { order_by => ['branchname'] } )->unblessed;
@@ -508,8 +508,9 @@ sub edit_form {
                 if grep { $subfield->{kohafield} && $subfield->{kohafield} eq $_ } @$kohafields_to_ignore;
 
             next
-                if $ignore_invisible_subfields
-                && ( $subfield->{hidden} > 4 || $subfield->{hidden} <= -4 );
+                if $ignore_non_mandatory_invisible_subfields
+                && ( $subfield->{hidden} > 4 || $subfield->{hidden} <= -4 )
+                && !$subfield->{mandatory};
 
             my $readonly;
             if ( @$subfields_to_allow
