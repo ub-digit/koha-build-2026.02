@@ -794,7 +794,7 @@ if ($export_enabled) {
                 $preferred_format = $custom_export_formats->{$preferred_format};
             }
         }
-        my $size_limit = C4::Context->preference('SearchResultExportLimit') || 0;
+        my $size_limit = C4::Context->preference('ElasticsearchSearchResultExportLimit') || 0;
         my %export_query = $size_limit ? (%{$query}, (size => $size_limit)) : %{$query};
         my $size = $size_limit && $hits > $size_limit ? $size_limit : $hits;
         my $export_job_id = Koha::BackgroundJob::SearchResultExport->new->enqueue({
