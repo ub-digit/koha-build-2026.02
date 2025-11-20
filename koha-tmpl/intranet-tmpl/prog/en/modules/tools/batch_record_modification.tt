@@ -353,7 +353,7 @@
             }).filter(':checked').trigger('change');
 
             update_tab_display();
-            $("input[type='radio']").click(function() {
+            $("input[type='radio'][name='recordtype']").click(function() {
                 update_tab_display();
             });
 
