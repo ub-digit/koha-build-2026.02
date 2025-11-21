@@ -71,6 +71,7 @@ RECORD_IDS: for my $record_id ( sort { $a <=> $b } @record_ids ) {
         # First, checking if issues exist.
         # If yes, nothing to do
         my $biblio = Koha::Biblios->find($biblionumber);
+        next unless $biblio;
 
         # TODO Replace with $biblio->get_issues->count
         if ( C4::Biblio::CountItemsIssued($biblionumber) ) {

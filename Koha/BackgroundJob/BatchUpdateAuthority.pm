@@ -76,11 +76,13 @@ RECORD_IDS: for my $record_id ( sort { $a <=> $b } @record_ids ) {
         my $authid = $record_id;
         my $error  = eval {
             my $authority = Koha::MetadataRecord::Authority->get_from_authid($authid);
-            my $record    = $authority->record;
+            die("Invalid authid: $authid") unless $authority;
+
+            my $record = $authority->record;
             ModifyRecordWithTemplate( $mmtid, $record );
             ModAuthority( $authid, $record, $authority->authtypecode, { skip_record_index => 1 } );
         };
-        if ( $error and $error != $authid or $@ ) {
+        if ( $error && $error != $authid || $@ ) {
             push @messages, {
                 type   => 'error',
                 code   => 'authority_not_modified',

@@ -84,6 +84,8 @@ RECORD_IDS: for my $biblionumber ( sort { $a <=> $b } @record_ids ) {
         # Modify the biblio
         my $error = eval {
             my $biblio = Koha::Biblios->find($biblionumber);
+            die("Invalid biblionumber: $biblionumber") unless $biblio;
+
             my $record = $biblio->metadata->record;
             C4::MarcModificationTemplates::ModifyRecordWithTemplate( $mmtid, $record );
             my $frameworkcode = C4::Biblio::GetFrameworkCode($biblionumber);
@@ -106,7 +108,7 @@ RECORD_IDS: for my $biblionumber ( sort { $a <=> $b } @record_ids ) {
                 }
             );
         };
-        if ( $error and $error != 1 or $@ ) {    # ModBiblio returns 1 if everything as gone well
+        if ( $error && $error != 1 || $@ ) {    # ModBiblio returns 1 if everything as gone well
             push @messages, {
                 type         => 'error',
                 code         => 'biblio_not_modified',
