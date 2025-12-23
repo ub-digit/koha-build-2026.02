@@ -23889,7 +23889,7 @@ __webpack_require__.d(__webpack_exports__, {
   "default": function() { return __WEBPACK_DEFAULT_EXPORT__; }
 });
 /* harmony import */var datatables_net_vue3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! datatables.net-vue3 */ "./node_modules/datatables.net-vue3/dist/datatables.net-vue.esm.js");
-/* harmony import */var datatables_net__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! datatables.net */ "datatables.net-buttons/js/buttons.colVis");
+/* harmony import */var datatables_net__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! datatables.net */ "datatables.net-buttons/js/buttons.print");
 /* harmony import */var datatables_net__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(datatables_net__WEBPACK_IMPORTED_MODULE_0__);
 
 
@@ -25454,7 +25454,7 @@ if (false) {} else {
 
 
 }),
-"datatables.net-buttons/js/buttons.colVis": (function (module) {
+"datatables.net-buttons/js/buttons.print": (function (module) {
 "use strict";
 module.exports = DataTable;
 
