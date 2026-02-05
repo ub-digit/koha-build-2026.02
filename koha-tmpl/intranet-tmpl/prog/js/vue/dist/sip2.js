@@ -1470,6 +1470,90 @@ module.exports = webpackAsyncContext;
 
 
 }),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js": 
+/*!*****************************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js ***!
+  \*****************************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  withAuthorisedValueActions: () => (withAuthorisedValueActions)
+});
+/* import */ var _fetch_api_client_js__rspack_import_0 = __webpack_require__(/*! ../fetch/api-client.js */ "./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js");
+
+
+const get_lib_from_av_handler = (arr_name, av, store) => {
+    if (store.authorisedValues[arr_name] === undefined) {
+        console.warn(
+            "The authorised value category for '%s' is not defined.".format(
+                arr_name
+            )
+        );
+        return;
+    }
+    let o = store.authorisedValues[arr_name].find(e => e.value == av);
+    return o ? o.description : av;
+};
+const map_av_dt_filter_handler = (arr_name, store) => {
+    return store.authorisedValues[arr_name].map(e => {
+        e["_id"] = e["value"];
+        e["_str"] = e["description"];
+        return e;
+    });
+};
+const load_authorised_values_handler = async (
+    authorisedValues,
+    targetStore
+) => {
+    const AVsToFetch = Object.keys(authorisedValues).reduce((acc, avKey) => {
+        if (Array.isArray(authorisedValues[avKey])) return acc;
+        acc[avKey] = authorisedValues[avKey];
+        return acc;
+    }, {});
+
+    const AVCatArray = Object.keys(AVsToFetch).map(avCat => {
+        return '"' + AVsToFetch[avCat] + '"';
+    });
+
+    const promises = [];
+    const AVClient = _fetch_api_client_js__rspack_import_0.APIClient.authorised_values;
+    promises.push(
+        AVClient.values
+            .getCategoriesWithValues(AVCatArray)
+            .then(AVCategories => {
+                Object.entries(AVsToFetch).forEach(([AVName, AVCat]) => {
+                    const AVMatch = AVCategories.find(
+                        element => element.category_name == AVCat
+                    );
+                    targetStore.authorisedValues[AVName] =
+                        AVMatch.authorised_values;
+                });
+            })
+    );
+
+    return Promise.all(promises);
+};
+
+function withAuthorisedValueActions(store) {
+    return {
+        loadAuthorisedValues(authorisedValues, targetStore) {
+            return load_authorised_values_handler(
+                authorisedValues,
+                targetStore
+            );
+        },
+        get_lib_from_av(arr_name, av) {
+            return get_lib_from_av_handler(arr_name, av, store);
+        },
+        map_av_dt_filter(arr_name) {
+            return map_av_dt_filter_handler(arr_name, store);
+        },
+    };
+}
+
+
+}),
 "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/base-element.js": 
 /*!*************************************************************************!*\
   !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/base-element.js ***!
@@ -2561,6 +2645,36 @@ function build_url(base_url, filters) {
 
 
 }),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js": 
+/*!************************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js ***!
+  \************************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  permissionsActions: () => (permissionsActions)
+});
+const isUserPermittedHandler = (operation, permissions, store) => {
+    const userPermissions = permissions ? permissions : store.userPermissions;
+    if (!operation) return true;
+    if (!userPermissions) return false;
+
+    return (
+        userPermissions.hasOwnProperty(operation) && userPermissions[operation]
+    );
+};
+
+const permissionsActions = store => {
+    return {
+        isUserPermitted(operation, permissions) {
+            return isUserPermittedHandler(operation, permissions, store);
+        },
+    };
+};
+
+
+}),
 "./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js": 
 /*!*****************************************************************!*\
   !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js ***!
@@ -3000,59 +3114,148 @@ const loaded = function () {
 
 
 }),
-"./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js": 
-/*!****************************************************************************!*\
-  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js ***!
-  \****************************************************************************/
+"./koha-tmpl/intranet-tmpl/prog/js/vue/routes/sip2.js": 
+/*!************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/routes/sip2.js ***!
+  \************************************************************/
 (function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
-  "default": () => (__rspack_default_export)
+  routes: () => (routes)
 });
 /* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
-/* import */ var _components_ResourceWrapper_vue__rspack_import_1 = __webpack_require__(/*! ../../components/ResourceWrapper.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/ResourceWrapper.vue");
-/* import */ var _koha_vue_i18n__rspack_import_2 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
+/* import */ var _components_SIP2_Home_vue__rspack_import_1 = __webpack_require__(/*! ../components/SIP2/Home.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/SIP2/Home.vue");
+/* import */ var _components_ResourceWrapper_vue__rspack_import_2 = __webpack_require__(/*! ../components/ResourceWrapper.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/ResourceWrapper.vue");
+/* import */ var _i18n__rspack_import_3 = __webpack_require__(/*! ../i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
 
 
 
 
 
 
-/* export default */ const __rspack_default_export = ({
-    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Administration"),
-    path: "",
-    href: "/cgi-bin/koha/admin/admin-home.pl",
-    is_base: true,
-    is_default: true,
-    children: [
-        {
-            title: (0,_koha_vue_i18n__rspack_import_2.$__)("Record sources"),
-            path: "/cgi-bin/koha/admin/record_sources",
-            is_end_node: true,
-            resource: "Admin/RecordSources/RecordSourcesResource.vue",
-            children: [
-                {
-                    path: "",
-                    name: "RecordSourcesList",
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                },
-                {
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                    name: "RecordSourcesFormAdd",
-                    path: "add",
-                    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Add record source"),
-                },
-                {
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                    name: "RecordSourcesFormAddEdit",
-                    path: "edit/:record_source_id",
-                    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Edit record source"),
-                },
-            ],
-        },
-    ],
-});
+const routes = [
+    {
+        title: (0,_i18n__rspack_import_3.$__)("Administration"),
+        path: "",
+        href: "/cgi-bin/koha/admin/admin-home.pl",
+        is_base: true,
+        is_default: true,
+        children: [
+            {
+                path: "/cgi-bin/koha/sip2/sip2.pl",
+                is_default: true,
+                is_base: true,
+                title: (0,_i18n__rspack_import_3.$__)("SIP2"),
+                children: [
+                    {
+                        path: "",
+                        name: "Home",
+                        component: (0,vue__rspack_import_0.markRaw)(_components_SIP2_Home_vue__rspack_import_1["default"]),
+                        is_navigation_item: false,
+                    },
+                    {
+                        path: "/cgi-bin/koha/sip2/institutions",
+                        title: (0,_i18n__rspack_import_3.$__)("Institutions"),
+                        icon: "fa fa-building-columns",
+                        is_end_node: true,
+                        resource: "SIP2/SIP2InstitutionResource.vue",
+                        children: [
+                            {
+                                path: "",
+                                name: "SIP2InstitutionsList",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                            },
+                            {
+                                path: ":sip_institution_id",
+                                name: "SIP2InstitutionsShow",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Show institution"),
+                            },
+                            {
+                                path: "add",
+                                name: "SIP2InstitutionsFormAdd",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Add institution"),
+                            },
+                            {
+                                path: "edit/:sip_institution_id",
+                                name: "SIP2InstitutionsFormAddEdit",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Edit institution"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "/cgi-bin/koha/sip2/accounts",
+                        title: (0,_i18n__rspack_import_3.$__)("Accounts"),
+                        icon: "fa fa-user",
+                        is_end_node: true,
+                        resource: "SIP2/SIP2AccountResource.vue",
+                        children: [
+                            {
+                                path: "",
+                                name: "SIP2AccountsList",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                            },
+                            {
+                                path: ":sip_account_id",
+                                name: "SIP2AccountsShow",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Show account"),
+                            },
+                            {
+                                path: "add",
+                                name: "SIP2AccountsFormAdd",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Add account"),
+                            },
+                            {
+                                path: "edit/:sip_account_id",
+                                name: "SIP2AccountsFormAddEdit",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Edit account"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "/cgi-bin/koha/sip2/system_preference_overrides",
+                        title: (0,_i18n__rspack_import_3.$__)("System preference overrides"),
+                        icon: "fa fa-cog",
+                        is_end_node: true,
+                        resource:
+                            "SIP2/SIP2SystemPreferenceOverrideResource.vue",
+                        children: [
+                            {
+                                path: "",
+                                name: "SIP2SystemPreferenceOverridesList",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                            },
+                            {
+                                path: ":sip_system_preference_override_id",
+                                name: "SIP2SystemPreferenceOverridesShow",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Show system preference override"),
+                            },
+                            {
+                                path: "add",
+                                name: "SIP2SystemPreferenceOverridesFormAdd",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Add system preference override"),
+                            },
+                            {
+                                path: "edit/:sip_system_preference_override_id",
+                                name: "SIP2SystemPreferenceOverridesFormAddEdit",
+                                component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                                title: (0,_i18n__rspack_import_3.$__)("Edit system preference override"),
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+];
 
 
 }),
@@ -3481,6 +3684,89 @@ function isParent(parent) {
 function isAbsolutePath(path) {
     return /^\//.test(path);
 }
+
+
+}),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/stores/sip2.js": 
+/*!************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/stores/sip2.js ***!
+  \************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  useSIP2Store: () => (useSIP2Store)
+});
+/* import */ var pinia__rspack_import_2 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
+/* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
+/* import */ var _composables_authorisedValues__rspack_import_1 = __webpack_require__(/*! ../composables/authorisedValues */ "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js");
+
+
+
+
+const useSIP2Store = (0,pinia__rspack_import_2.defineStore)("sip2", () => {
+    const store = (0,vue__rspack_import_0.reactive)({
+        authorisedValues: {
+            av_lost: "LOST",
+        },
+    });
+    const sharedActions = (0,_composables_authorisedValues__rspack_import_1.withAuthorisedValueActions)(store);
+
+    return {
+        ...(0,vue__rspack_import_0.toRefs)(store),
+        ...sharedActions,
+    };
+});
+
+
+}),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js": 
+/*!***************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js ***!
+  \***************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  useVendorStore: () => (useVendorStore)
+});
+/* import */ var pinia__rspack_import_3 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
+/* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
+/* import */ var _composables_authorisedValues__rspack_import_1 = __webpack_require__(/*! ../composables/authorisedValues */ "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js");
+/* import */ var _composables_permissions__rspack_import_2 = __webpack_require__(/*! ../composables/permissions */ "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js");
+
+
+
+
+
+const useVendorStore = (0,pinia__rspack_import_3.defineStore)("vendors", () => {
+    const store = (0,vue__rspack_import_0.reactive)({
+        vendors: [],
+        currencies: [],
+        gstValues: [],
+        config: {
+            settings: {
+                edifact: false,
+                marcOrderAutomation: false,
+            },
+        },
+        authorisedValues: {
+            av_vendor_types: "VENDOR_TYPE",
+            av_vendor_interface_types: "VENDOR_INTERFACE_TYPE",
+            av_vendor_payment_methods: "VENDOR_PAYMENT_METHOD",
+        },
+        userPermissions: null,
+    });
+    const sharedActions = {
+        ...(0,_composables_authorisedValues__rspack_import_1.withAuthorisedValueActions)(store),
+        ...(0,_composables_permissions__rspack_import_2.permissionsActions)(store),
+    };
+
+    return {
+        ...(0,vue__rspack_import_0.toRefs)(store),
+        ...sharedActions,
+    };
+});
 
 
 }),
@@ -29400,67 +29686,6 @@ function normalizeCssVarValue(value) {
 
 
 }),
-"./node_modules/css-loader/dist/cjs.js!./koha-tmpl/intranet-tmpl/prog/css/vue.css": 
-/*!****************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js!./koha-tmpl/intranet-tmpl/prog/css/vue.css ***!
-  \****************************************************************************************/
-(function (module, __webpack_exports__, __webpack_require__) {
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-__webpack_require__.d(__webpack_exports__, {
-  "default": () => (__rspack_default_export)
-});
-/* import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__rspack_import_0 = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
-/* import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__rspack_import_0_default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__rspack_import_0);
-/* import */ var _node_modules_css_loader_dist_runtime_api_js__rspack_import_1 = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
-/* import */ var _node_modules_css_loader_dist_runtime_api_js__rspack_import_1_default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__rspack_import_1);
-// Imports
-
-
-var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__rspack_import_1_default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__rspack_import_0_default()));
-// Module
-___CSS_LOADER_EXPORT___.push([module.id, `#menu ul ul,
-.sidebar_menu ul ul {
-    background-color: transparent;
-    padding-left: 2em;
-    font-size: 100%;
-}
-
-form .v-select {
-    display: inline-block;
-    background-color: white;
-    width: 30%;
-}
-
-.v-select,
-input:not([type="submit"]):not([type="search"]):not([type="button"]):not(
-        [type="checkbox"]
-    ):not([type="radio"]),
-textarea {
-    border-color: rgba(60, 60, 60, 0.26);
-    border-width: 1px;
-    border-radius: 4px;
-    min-width: 30%;
-}
-.flatpickr-input {
-    width: 30%;
-}
-.sidebar_menu ul li a.current.disabled {
-    background-color: inherit;
-    border-left: 5px solid transparent;
-    color: #000;
-}
-.sidebar_menu ul li a.disabled {
-    color: #666;
-    pointer-events: none;
-    font-weight: 700;
-}
-`, "",{"version":3,"sources":["webpack://./koha-tmpl/intranet-tmpl/prog/css/vue.css"],"names":[],"mappings":"AAAA;;IAEI,6BAA6B;IAC7B,iBAAiB;IACjB,eAAe;AACnB;;AAEA;IACI,qBAAqB;IACrB,uBAAuB;IACvB,UAAU;AACd;;AAEA;;;;;IAKI,oCAAoC;IACpC,iBAAiB;IACjB,kBAAkB;IAClB,cAAc;AAClB;AACA;IACI,UAAU;AACd;AACA;IACI,yBAAyB;IACzB,kCAAkC;IAClC,WAAW;AACf;AACA;IACI,WAAW;IACX,oBAAoB;IACpB,gBAAgB;AACpB","sourcesContent":["#menu ul ul,\n.sidebar_menu ul ul {\n    background-color: transparent;\n    padding-left: 2em;\n    font-size: 100%;\n}\n\nform .v-select {\n    display: inline-block;\n    background-color: white;\n    width: 30%;\n}\n\n.v-select,\ninput:not([type=\"submit\"]):not([type=\"search\"]):not([type=\"button\"]):not(\n        [type=\"checkbox\"]\n    ):not([type=\"radio\"]),\ntextarea {\n    border-color: rgba(60, 60, 60, 0.26);\n    border-width: 1px;\n    border-radius: 4px;\n    min-width: 30%;\n}\n.flatpickr-input {\n    width: 30%;\n}\n.sidebar_menu ul li a.current.disabled {\n    background-color: inherit;\n    border-left: 5px solid transparent;\n    color: #000;\n}\n.sidebar_menu ul li a.disabled {\n    color: #666;\n    pointer-events: none;\n    font-weight: 700;\n}\n"],"sourceRoot":""}]);
-// Exports
-/* export default */ const __rspack_default_export = (___CSS_LOADER_EXPORT___);
-
-
-}),
 "./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/vue-loader/dist/index.js??ruleSet[0]!./koha-tmpl/intranet-tmpl/prog/js/vue/components/BaseResource.vue?vue&type=style&index=0&id=6c397e1c&lang=css": 
 /*!*****************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/vue-loader/dist/index.js??ruleSet[0]!./koha-tmpl/intranet-tmpl/prog/js/vue/components/BaseResource.vue?vue&type=style&index=0&id=6c397e1c&lang=css ***!
@@ -33763,59 +33988,6 @@ if (typeof Object.assign !== "function") {
         return target;
     };
 }
-
-
-}),
-"./koha-tmpl/intranet-tmpl/prog/css/vue.css": 
-/*!**************************************************!*\
-  !*** ./koha-tmpl/intranet-tmpl/prog/css/vue.css ***!
-  \**************************************************/
-(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-__webpack_require__.d(__webpack_exports__, {
-  "default": () => (__rspack_default_export)
-});
-/* import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__rspack_import_0 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
-/* import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__rspack_import_0_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__rspack_import_0);
-/* import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__rspack_import_1 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
-/* import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__rspack_import_1_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__rspack_import_1);
-/* import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__rspack_import_2 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
-/* import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__rspack_import_2_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__rspack_import_2);
-/* import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__rspack_import_3 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
-/* import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__rspack_import_3_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__rspack_import_3);
-/* import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__rspack_import_4 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
-/* import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__rspack_import_4_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__rspack_import_4);
-/* import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__rspack_import_5 = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
-/* import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__rspack_import_5_default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__rspack_import_5);
-/* import */ var _node_modules_css_loader_dist_cjs_js_vue_css__rspack_import_6 = __webpack_require__(/*! !!../../../../node_modules/css-loader/dist/cjs.js!./vue.css */ "./node_modules/css-loader/dist/cjs.js!./koha-tmpl/intranet-tmpl/prog/css/vue.css");
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var options = {};
-
-options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__rspack_import_5_default());
-options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__rspack_import_3_default());
-
-      options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__rspack_import_2_default().bind(null, "head");
-    
-options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__rspack_import_1_default());
-options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__rspack_import_4_default());
-
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__rspack_import_0_default()(_node_modules_css_loader_dist_cjs_js_vue_css__rspack_import_6["default"], options);
-
-
-
-
-       /* export default */ const __rspack_default_export = (_node_modules_css_loader_dist_cjs_js_vue_css__rspack_import_6["default"] && _node_modules_css_loader_dist_cjs_js_vue_css__rspack_import_6["default"].locals ? _node_modules_css_loader_dist_cjs_js_vue_css__rspack_import_6["default"].locals : undefined);
 
 
 }),
@@ -99601,24 +99773,25 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 
-/*!*****************************************************************************!*\
-  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts ***!
-  \*****************************************************************************/
+/*!*************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/modules/sip2.ts ***!
+  \*************************************************************/
 __webpack_require__.r(__webpack_exports__);
 /* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
-/* import */ var pinia__rspack_import_11 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
-/* import */ var vue_router__rspack_import_12 = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.mjs");
+/* import */ var vue_router__rspack_import_13 = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.mjs");
+/* import */ var pinia__rspack_import_12 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
 /* import */ var _fortawesome_fontawesome_svg_core__rspack_import_1 = __webpack_require__(/*! @fortawesome/fontawesome-svg-core */ "./node_modules/@fortawesome/fontawesome-svg-core/index.mjs");
-/* import */ var _fortawesome_free_solid_svg_icons__rspack_import_10 = __webpack_require__(/*! @fortawesome/free-solid-svg-icons */ "./node_modules/@fortawesome/free-solid-svg-icons/index.mjs");
+/* import */ var _fortawesome_free_solid_svg_icons__rspack_import_11 = __webpack_require__(/*! @fortawesome/free-solid-svg-icons */ "./node_modules/@fortawesome/free-solid-svg-icons/index.mjs");
 /* import */ var _fortawesome_vue_fontawesome__rspack_import_2 = __webpack_require__(/*! @fortawesome/vue-fontawesome */ "./node_modules/@fortawesome/vue-fontawesome/index.es.js");
 /* import */ var vue_select__rspack_import_3 = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
 /* import */ var vue_select__rspack_import_3_default = /*#__PURE__*/__webpack_require__.n(vue_select__rspack_import_3);
-/* import */ var _stores_navigation__rspack_import_4 = __webpack_require__(/*! ../../stores/navigation */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/navigation.js");
-/* import */ var _stores_main__rspack_import_5 = __webpack_require__(/*! ../../stores/main */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/main.js");
-/* import */ var _routes_admin_record_sources__rspack_import_6 = __webpack_require__(/*! ../../routes/admin/record_sources */ "./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js");
-/* import */ var _components_Admin_RecordSources_Main_vue__rspack_import_7 = __webpack_require__(/*! ../../components/Admin/RecordSources/Main.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/Admin/RecordSources/Main.vue");
-/* import */ var _css_vue_css__rspack_import_8 = __webpack_require__(/*! ../../../../css/vue.css */ "./koha-tmpl/intranet-tmpl/prog/css/vue.css");
-/* import */ var _koha_vue_i18n__rspack_import_9 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
+/* import */ var _components_SIP2_Main_vue__rspack_import_4 = __webpack_require__(/*! ../components/SIP2/Main.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/SIP2/Main.vue");
+/* import */ var _routes_sip2__rspack_import_5 = __webpack_require__(/*! ../routes/sip2 */ "./koha-tmpl/intranet-tmpl/prog/js/vue/routes/sip2.js");
+/* import */ var _stores_main__rspack_import_6 = __webpack_require__(/*! ../stores/main */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/main.js");
+/* import */ var _stores_vendors__rspack_import_7 = __webpack_require__(/*! ../stores/vendors */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js");
+/* import */ var _stores_sip2__rspack_import_8 = __webpack_require__(/*! ../stores/sip2 */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/sip2.js");
+/* import */ var _stores_navigation__rspack_import_9 = __webpack_require__(/*! ../stores/navigation */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/navigation.js");
+/* import */ var _i18n__rspack_import_10 = __webpack_require__(/*! ../i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
 
 
 
@@ -99626,31 +99799,34 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+_fortawesome_fontawesome_svg_core__rspack_import_1.library.add(_fortawesome_free_solid_svg_icons__rspack_import_11.faPlus, _fortawesome_free_solid_svg_icons__rspack_import_11.faMinus, _fortawesome_free_solid_svg_icons__rspack_import_11.faPencil, _fortawesome_free_solid_svg_icons__rspack_import_11.faTrash, _fortawesome_free_solid_svg_icons__rspack_import_11.faSpinner, _fortawesome_free_solid_svg_icons__rspack_import_11.faSave);
 
 
 
-_fortawesome_fontawesome_svg_core__rspack_import_1.library.add(_fortawesome_free_solid_svg_icons__rspack_import_10.faPlus, _fortawesome_free_solid_svg_icons__rspack_import_10.faMinus, _fortawesome_free_solid_svg_icons__rspack_import_10.faPencil, _fortawesome_free_solid_svg_icons__rspack_import_10.faTrash, _fortawesome_free_solid_svg_icons__rspack_import_10.faSpinner);
-var pinia = (0,pinia__rspack_import_11.createPinia)();
-var navigationStore = (0,_stores_navigation__rspack_import_4.useNavigationStore)(pinia);
-var mainStore = (0,_stores_main__rspack_import_5.useMainStore)(pinia);
-var removeMessages = mainStore.removeMessages;
-var setRoutes = navigationStore.setRoutes;
-var routes = setRoutes(_routes_admin_record_sources__rspack_import_6["default"]);
-var router = (0,vue_router__rspack_import_12.createRouter)({
-    history: (0,vue_router__rspack_import_12.createWebHistory)(),
-    linkExactActiveClass: "current",
+
+
+
+
+var pinia = (0,pinia__rspack_import_12.createPinia)();
+var mainStore = (0,_stores_main__rspack_import_6.useMainStore)(pinia);
+var navigationStore = (0,_stores_navigation__rspack_import_9.useNavigationStore)(pinia);
+var routes = navigationStore.setRoutes(_routes_sip2__rspack_import_5.routes);
+var router = (0,vue_router__rspack_import_13.createRouter)({
+    history: (0,vue_router__rspack_import_13.createWebHistory)(),
+    linkActiveClass: "current",
     routes: routes
 });
-
-
-
-var app = (0,vue__rspack_import_0.createApp)(_components_Admin_RecordSources_Main_vue__rspack_import_7["default"]);
-var rootComponent = app.use(_koha_vue_i18n__rspack_import_9["default"]).use(pinia).use(router).component("font-awesome-icon", _fortawesome_vue_fontawesome__rspack_import_2.FontAwesomeIcon).component("v-select", (vue_select__rspack_import_3_default()));
+var app = (0,vue__rspack_import_0.createApp)(_components_SIP2_Main_vue__rspack_import_4["default"]);
+var rootComponent = app.use(_i18n__rspack_import_10["default"]).use(pinia).use(router).component("font-awesome-icon", _fortawesome_vue_fontawesome__rspack_import_2.FontAwesomeIcon).component("v-select", (vue_select__rspack_import_3_default()));
 app.config.unwrapInjectedRef = true;
+app.provide("vendorStore", (0,_stores_vendors__rspack_import_7.useVendorStore)(pinia));
 app.provide("mainStore", mainStore);
 app.provide("navigationStore", navigationStore);
-app.mount("#record-source");
-router.beforeEach(function(to) {
+var SIP2Store = (0,_stores_sip2__rspack_import_8.useSIP2Store)(pinia);
+app.provide("SIP2Store", SIP2Store);
+app.mount("#sip2");
+var removeMessages = mainStore.removeMessages;
+router.beforeEach(function(to, from) {
     navigationStore.$patch({
         current: to.matched,
         params: to.params || {}
@@ -99662,4 +99838,4 @@ router.beforeEach(function(to) {
 
 })()
 ;
-//# sourceMappingURL=record_sources.js.map
+//# sourceMappingURL=sip2.js.map
