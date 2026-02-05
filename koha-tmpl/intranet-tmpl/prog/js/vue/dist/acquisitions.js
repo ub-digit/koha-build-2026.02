@@ -1470,6 +1470,90 @@ module.exports = webpackAsyncContext;
 
 
 }),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js": 
+/*!*****************************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js ***!
+  \*****************************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  withAuthorisedValueActions: () => (withAuthorisedValueActions)
+});
+/* import */ var _fetch_api_client_js__rspack_import_0 = __webpack_require__(/*! ../fetch/api-client.js */ "./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js");
+
+
+const get_lib_from_av_handler = (arr_name, av, store) => {
+    if (store.authorisedValues[arr_name] === undefined) {
+        console.warn(
+            "The authorised value category for '%s' is not defined.".format(
+                arr_name
+            )
+        );
+        return;
+    }
+    let o = store.authorisedValues[arr_name].find(e => e.value == av);
+    return o ? o.description : av;
+};
+const map_av_dt_filter_handler = (arr_name, store) => {
+    return store.authorisedValues[arr_name].map(e => {
+        e["_id"] = e["value"];
+        e["_str"] = e["description"];
+        return e;
+    });
+};
+const load_authorised_values_handler = async (
+    authorisedValues,
+    targetStore
+) => {
+    const AVsToFetch = Object.keys(authorisedValues).reduce((acc, avKey) => {
+        if (Array.isArray(authorisedValues[avKey])) return acc;
+        acc[avKey] = authorisedValues[avKey];
+        return acc;
+    }, {});
+
+    const AVCatArray = Object.keys(AVsToFetch).map(avCat => {
+        return '"' + AVsToFetch[avCat] + '"';
+    });
+
+    const promises = [];
+    const AVClient = _fetch_api_client_js__rspack_import_0.APIClient.authorised_values;
+    promises.push(
+        AVClient.values
+            .getCategoriesWithValues(AVCatArray)
+            .then(AVCategories => {
+                Object.entries(AVsToFetch).forEach(([AVName, AVCat]) => {
+                    const AVMatch = AVCategories.find(
+                        element => element.category_name == AVCat
+                    );
+                    targetStore.authorisedValues[AVName] =
+                        AVMatch.authorised_values;
+                });
+            })
+    );
+
+    return Promise.all(promises);
+};
+
+function withAuthorisedValueActions(store) {
+    return {
+        loadAuthorisedValues(authorisedValues, targetStore) {
+            return load_authorised_values_handler(
+                authorisedValues,
+                targetStore
+            );
+        },
+        get_lib_from_av(arr_name, av) {
+            return get_lib_from_av_handler(arr_name, av, store);
+        },
+        map_av_dt_filter(arr_name) {
+            return map_av_dt_filter_handler(arr_name, store);
+        },
+    };
+}
+
+
+}),
 "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/base-element.js": 
 /*!*************************************************************************!*\
   !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/base-element.js ***!
@@ -2561,6 +2645,36 @@ function build_url(base_url, filters) {
 
 
 }),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js": 
+/*!************************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js ***!
+  \************************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  permissionsActions: () => (permissionsActions)
+});
+const isUserPermittedHandler = (operation, permissions, store) => {
+    const userPermissions = permissions ? permissions : store.userPermissions;
+    if (!operation) return true;
+    if (!userPermissions) return false;
+
+    return (
+        userPermissions.hasOwnProperty(operation) && userPermissions[operation]
+    );
+};
+
+const permissionsActions = store => {
+    return {
+        isUserPermitted(operation, permissions) {
+            return isUserPermittedHandler(operation, permissions, store);
+        },
+    };
+};
+
+
+}),
 "./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js": 
 /*!*****************************************************************!*\
   !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/fetch/api-client.js ***!
@@ -3000,59 +3114,94 @@ const loaded = function () {
 
 
 }),
-"./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js": 
-/*!****************************************************************************!*\
-  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js ***!
-  \****************************************************************************/
+"./koha-tmpl/intranet-tmpl/prog/js/vue/routes/acquisitions.js": 
+/*!********************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/routes/acquisitions.js ***!
+  \********************************************************************/
 (function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
-  "default": () => (__rspack_default_export)
+  routes: () => (routes)
 });
 /* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
-/* import */ var _components_ResourceWrapper_vue__rspack_import_1 = __webpack_require__(/*! ../../components/ResourceWrapper.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/ResourceWrapper.vue");
-/* import */ var _koha_vue_i18n__rspack_import_2 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
+/* import */ var _components_Vendors_Home_vue__rspack_import_1 = __webpack_require__(/*! ../components/Vendors/Home.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/Vendors/Home.vue");
+/* import */ var _components_ResourceWrapper_vue__rspack_import_2 = __webpack_require__(/*! ../components/ResourceWrapper.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/ResourceWrapper.vue");
+/* import */ var _koha_vue_i18n__rspack_import_3 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
 
 
 
 
 
 
-/* export default */ const __rspack_default_export = ({
-    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Administration"),
-    path: "",
-    href: "/cgi-bin/koha/admin/admin-home.pl",
-    is_base: true,
-    is_default: true,
-    children: [
-        {
-            title: (0,_koha_vue_i18n__rspack_import_2.$__)("Record sources"),
-            path: "/cgi-bin/koha/admin/record_sources",
-            is_end_node: true,
-            resource: "Admin/RecordSources/RecordSourcesResource.vue",
-            children: [
-                {
-                    path: "",
-                    name: "RecordSourcesList",
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                },
-                {
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                    name: "RecordSourcesFormAdd",
-                    path: "add",
-                    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Add record source"),
-                },
-                {
-                    component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_1["default"]),
-                    name: "RecordSourcesFormAddEdit",
-                    path: "edit/:record_source_id",
-                    title: (0,_koha_vue_i18n__rspack_import_2.$__)("Edit record source"),
-                },
-            ],
-        },
-    ],
-});
+
+const vendorSearchBreadcrumb = ({ match, query }) => {
+    if (!query || !query.supplier) return match;
+    match.title = (0,_koha_vue_i18n__rspack_import_3.$__)("Search for vendor: %s").format(query.supplier);
+    match.disabled = true;
+    return match;
+};
+
+const routes = [
+    {
+        path: "/cgi-bin/koha/acqui/acqui-home.pl",
+        is_default: true,
+        is_base: true,
+        title: (0,_koha_vue_i18n__rspack_import_3.$__)("Acquisitions"),
+        children: [
+            {
+                path: "",
+                name: "Home",
+                component: (0,vue__rspack_import_0.markRaw)(_components_Vendors_Home_vue__rspack_import_1["default"]),
+                is_navigation_item: false,
+            },
+            {
+                path: "/cgi-bin/koha/acquisition/vendors",
+                title: (0,_koha_vue_i18n__rspack_import_3.$__)("Vendors"),
+                icon: "fa fa-shopping-cart",
+                is_end_node: true,
+                breadcrumbFormat: vendorSearchBreadcrumb,
+                resource: "Vendors/VendorResource.vue",
+                children: [
+                    {
+                        path: "",
+                        name: "VendorList",
+                        component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                        alternateLeftMenu: "AcquisitionsMenu",
+                    },
+                    {
+                        path: ":id",
+                        name: "VendorShow",
+                        component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                        title: "{name}",
+                        alternateLeftMenu: "VendorMenu",
+                    },
+                    {
+                        path: "add",
+                        name: "VendorFormAdd",
+                        component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                        title: (0,_koha_vue_i18n__rspack_import_3.$__)("Add vendor"),
+                        alternateLeftMenu: "none",
+                    },
+                    {
+                        path: "edit/:id",
+                        name: "VendorFormAddEdit",
+                        component: (0,vue__rspack_import_0.markRaw)(_components_ResourceWrapper_vue__rspack_import_2["default"]),
+                        title: "{name}",
+                        breadcrumbFormat: ({ match, params, query }) => {
+                            match.name = "VendorShow";
+                            return match;
+                        },
+                        additionalBreadcrumbs: [
+                            { title: (0,_koha_vue_i18n__rspack_import_3.$__)("Modify vendor"), disabled: true },
+                        ],
+                        alternateLeftMenu: "VendorMenu",
+                    },
+                ],
+            },
+        ],
+    },
+];
 
 
 }),
@@ -3481,6 +3630,56 @@ function isParent(parent) {
 function isAbsolutePath(path) {
     return /^\//.test(path);
 }
+
+
+}),
+"./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js": 
+/*!***************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js ***!
+  \***************************************************************/
+(function (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  useVendorStore: () => (useVendorStore)
+});
+/* import */ var pinia__rspack_import_3 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
+/* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
+/* import */ var _composables_authorisedValues__rspack_import_1 = __webpack_require__(/*! ../composables/authorisedValues */ "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/authorisedValues.js");
+/* import */ var _composables_permissions__rspack_import_2 = __webpack_require__(/*! ../composables/permissions */ "./koha-tmpl/intranet-tmpl/prog/js/vue/composables/permissions.js");
+
+
+
+
+
+const useVendorStore = (0,pinia__rspack_import_3.defineStore)("vendors", () => {
+    const store = (0,vue__rspack_import_0.reactive)({
+        vendors: [],
+        currencies: [],
+        gstValues: [],
+        config: {
+            settings: {
+                edifact: false,
+                marcOrderAutomation: false,
+            },
+        },
+        authorisedValues: {
+            av_vendor_types: "VENDOR_TYPE",
+            av_vendor_interface_types: "VENDOR_INTERFACE_TYPE",
+            av_vendor_payment_methods: "VENDOR_PAYMENT_METHOD",
+        },
+        userPermissions: null,
+    });
+    const sharedActions = {
+        ...(0,_composables_authorisedValues__rspack_import_1.withAuthorisedValueActions)(store),
+        ...(0,_composables_permissions__rspack_import_2.permissionsActions)(store),
+    };
+
+    return {
+        ...(0,vue__rspack_import_0.toRefs)(store),
+        ...sharedActions,
+    };
+});
 
 
 }),
@@ -99601,24 +99800,25 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 
-/*!*****************************************************************************!*\
-  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/modules/admin/record_sources.ts ***!
-  \*****************************************************************************/
+/*!*********************************************************************!*\
+  !*** ./koha-tmpl/intranet-tmpl/prog/js/vue/modules/acquisitions.ts ***!
+  \*********************************************************************/
 __webpack_require__.r(__webpack_exports__);
 /* import */ var vue__rspack_import_0 = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm-bundler.js");
-/* import */ var pinia__rspack_import_11 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
-/* import */ var vue_router__rspack_import_12 = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.mjs");
+/* import */ var vue_router__rspack_import_13 = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.mjs");
+/* import */ var pinia__rspack_import_12 = __webpack_require__(/*! pinia */ "./node_modules/pinia/dist/pinia.mjs");
 /* import */ var _fortawesome_fontawesome_svg_core__rspack_import_1 = __webpack_require__(/*! @fortawesome/fontawesome-svg-core */ "./node_modules/@fortawesome/fontawesome-svg-core/index.mjs");
-/* import */ var _fortawesome_free_solid_svg_icons__rspack_import_10 = __webpack_require__(/*! @fortawesome/free-solid-svg-icons */ "./node_modules/@fortawesome/free-solid-svg-icons/index.mjs");
+/* import */ var _fortawesome_free_solid_svg_icons__rspack_import_11 = __webpack_require__(/*! @fortawesome/free-solid-svg-icons */ "./node_modules/@fortawesome/free-solid-svg-icons/index.mjs");
 /* import */ var _fortawesome_vue_fontawesome__rspack_import_2 = __webpack_require__(/*! @fortawesome/vue-fontawesome */ "./node_modules/@fortawesome/vue-fontawesome/index.es.js");
 /* import */ var vue_select__rspack_import_3 = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
 /* import */ var vue_select__rspack_import_3_default = /*#__PURE__*/__webpack_require__.n(vue_select__rspack_import_3);
-/* import */ var _stores_navigation__rspack_import_4 = __webpack_require__(/*! ../../stores/navigation */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/navigation.js");
-/* import */ var _stores_main__rspack_import_5 = __webpack_require__(/*! ../../stores/main */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/main.js");
-/* import */ var _routes_admin_record_sources__rspack_import_6 = __webpack_require__(/*! ../../routes/admin/record_sources */ "./koha-tmpl/intranet-tmpl/prog/js/vue/routes/admin/record_sources.js");
-/* import */ var _components_Admin_RecordSources_Main_vue__rspack_import_7 = __webpack_require__(/*! ../../components/Admin/RecordSources/Main.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/Admin/RecordSources/Main.vue");
-/* import */ var _css_vue_css__rspack_import_8 = __webpack_require__(/*! ../../../../css/vue.css */ "./koha-tmpl/intranet-tmpl/prog/css/vue.css");
-/* import */ var _koha_vue_i18n__rspack_import_9 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
+/* import */ var _components_Vendors_Main_vue__rspack_import_4 = __webpack_require__(/*! ../components/Vendors/Main.vue */ "./koha-tmpl/intranet-tmpl/prog/js/vue/components/Vendors/Main.vue");
+/* import */ var _css_vue_css__rspack_import_5 = __webpack_require__(/*! ../../../css/vue.css */ "./koha-tmpl/intranet-tmpl/prog/css/vue.css");
+/* import */ var _routes_acquisitions__rspack_import_6 = __webpack_require__(/*! ../routes/acquisitions */ "./koha-tmpl/intranet-tmpl/prog/js/vue/routes/acquisitions.js");
+/* import */ var _stores_main__rspack_import_7 = __webpack_require__(/*! ../stores/main */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/main.js");
+/* import */ var _stores_vendors__rspack_import_8 = __webpack_require__(/*! ../stores/vendors */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/vendors.js");
+/* import */ var _stores_navigation__rspack_import_9 = __webpack_require__(/*! ../stores/navigation */ "./koha-tmpl/intranet-tmpl/prog/js/vue/stores/navigation.js");
+/* import */ var _koha_vue_i18n__rspack_import_10 = __webpack_require__(/*! @koha-vue/i18n */ "./koha-tmpl/intranet-tmpl/prog/js/vue/i18n/index.js");
 
 
 
@@ -99626,34 +99826,41 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+_fortawesome_fontawesome_svg_core__rspack_import_1.library.add(_fortawesome_free_solid_svg_icons__rspack_import_11.faEye, _fortawesome_free_solid_svg_icons__rspack_import_11.faEyeSlash, _fortawesome_free_solid_svg_icons__rspack_import_11.faInbox, _fortawesome_free_solid_svg_icons__rspack_import_11.faMinus, _fortawesome_free_solid_svg_icons__rspack_import_11.faPencil, _fortawesome_free_solid_svg_icons__rspack_import_11.faPlus, _fortawesome_free_solid_svg_icons__rspack_import_11.faSpinner, _fortawesome_free_solid_svg_icons__rspack_import_11.faTrash, _fortawesome_free_solid_svg_icons__rspack_import_11.faTimes, _fortawesome_free_solid_svg_icons__rspack_import_11.faSave);
 
 
 
-_fortawesome_fontawesome_svg_core__rspack_import_1.library.add(_fortawesome_free_solid_svg_icons__rspack_import_10.faPlus, _fortawesome_free_solid_svg_icons__rspack_import_10.faMinus, _fortawesome_free_solid_svg_icons__rspack_import_10.faPencil, _fortawesome_free_solid_svg_icons__rspack_import_10.faTrash, _fortawesome_free_solid_svg_icons__rspack_import_10.faSpinner);
-var pinia = (0,pinia__rspack_import_11.createPinia)();
-var navigationStore = (0,_stores_navigation__rspack_import_4.useNavigationStore)(pinia);
-var mainStore = (0,_stores_main__rspack_import_5.useMainStore)(pinia);
-var removeMessages = mainStore.removeMessages;
-var setRoutes = navigationStore.setRoutes;
-var routes = setRoutes(_routes_admin_record_sources__rspack_import_6["default"]);
-var router = (0,vue_router__rspack_import_12.createRouter)({
-    history: (0,vue_router__rspack_import_12.createWebHistory)(),
-    linkExactActiveClass: "current",
+
+
+
+
+var pinia = (0,pinia__rspack_import_12.createPinia)();
+var mainStore = (0,_stores_main__rspack_import_7.useMainStore)(pinia);
+var navigationStore = (0,_stores_navigation__rspack_import_9.useNavigationStore)(pinia);
+var routes = navigationStore.setRoutes(_routes_acquisitions__rspack_import_6.routes);
+var router = (0,vue_router__rspack_import_13.createRouter)({
+    history: (0,vue_router__rspack_import_13.createWebHistory)(),
+    linkActiveClass: "current",
     routes: routes
 });
-
-
-
-var app = (0,vue__rspack_import_0.createApp)(_components_Admin_RecordSources_Main_vue__rspack_import_7["default"]);
-var rootComponent = app.use(_koha_vue_i18n__rspack_import_9["default"]).use(pinia).use(router).component("font-awesome-icon", _fortawesome_vue_fontawesome__rspack_import_2.FontAwesomeIcon).component("v-select", (vue_select__rspack_import_3_default()));
+var app = (0,vue__rspack_import_0.createApp)(_components_Vendors_Main_vue__rspack_import_4["default"]);
+var rootComponent = app.use(_koha_vue_i18n__rspack_import_10["default"]).use(pinia).use(router).component("font-awesome-icon", _fortawesome_vue_fontawesome__rspack_import_2.FontAwesomeIcon).component("v-select", (vue_select__rspack_import_3_default()));
 app.config.unwrapInjectedRef = true;
+app.provide("vendorStore", (0,_stores_vendors__rspack_import_8.useVendorStore)(pinia));
 app.provide("mainStore", mainStore);
 app.provide("navigationStore", navigationStore);
-app.mount("#record-source");
-router.beforeEach(function(to) {
+app.mount("#vendors");
+var removeMessages = mainStore.removeMessages;
+router.beforeEach(function(to, from) {
+    if (to.path === "/cgi-bin/koha/acqui/vendors.pl") {
+        router.push({
+            name: "VendorList"
+        });
+    }
     navigationStore.$patch({
         current: to.matched,
-        params: to.params || {}
+        params: to.params || {},
+        query: to.query || {}
     });
     removeMessages(); // This will actually flag the messages as displayed already
 });
@@ -99662,4 +99869,4 @@ router.beforeEach(function(to) {
 
 })()
 ;
-//# sourceMappingURL=record_sources.js.map
+//# sourceMappingURL=acquisitions.js.map
