@@ -52,8 +52,10 @@ sub patron_attributes_form {
     my $template   = shift;
     my $attributes = shift;
     my $op         = shift;
+    my $loggedinuser = shift;
     my $query      = shift // {};
 
+    my $logged_in_user = Koha::Patrons->find($loggedinuser);
     my $library_id      = C4::Context->userenv ? C4::Context->userenv->{'branch'} : undef;
     my $attribute_types = Koha::Patron::Attribute::Types->search_with_library_limits( $query, {}, $library_id );
     if ( $attribute_types->count == 0
