@@ -868,7 +868,7 @@ if ( C4::Context->preference('uppercasesurnames') ) {
 }
 
 if ( C4::Context->preference('ExtendedPatronAttributes') ) {
-    Koha::Patron::Attribute::Types::patron_attributes_form( $template, $extended_patron_attributes, $op );
+    Koha::Patron::Attribute::Types::patron_attributes_form( $template, $extended_patron_attributes, $op, $loggedinuser );
 }
 
 if ( C4::Context->preference('EnhancedMessagingPreferences') ) {
