@@ -888,6 +888,9 @@
                                                 [% IF mandatorycardnumber %]
                                                     <span class="required">Required</span>
                                                 [% END %]
+                                                [% IF Koha.Preference('UBUseCardnumberGenerator') %]
+                                                    [% PROCESS 'ub-cardnumber-generator' %]
+                                                [% END %]
                                                 <span id="cn_max" class="required">Card number must not be more than [% maxlength_cardnumber | html %] characters.</span>
                                                 <div class="hint">Card number must be between [% minlength_cardnumber | html %] and [% maxlength_cardnumber | html %] characters.</div>
                                             [% ELSIF maxlength_cardnumber %]
@@ -1913,6 +1916,45 @@
     [% SET columns = ['cardnumber','name','category','branch','dateofbirth','address-library','action'] %]
     [% PROCESS patron_search_modal columns => columns, modal_title => t("Add guarantor") %]
     [% PROCESS patron_search_js columns => columns, actions => ["select"], preview_on_name_click => 1 %]
+    <script>
+        $(document).ready(function() {
+            $("#ub_generate_cardnumber").click(function(e) {
+                // Disable the button to prevent multiple clicks while the AJAX request is in progress
+                $("#ub_generate_cardnumber").prop("disabled", true);
+                e.preventDefault();
+                $.ajax({
+                    url: "/cgi-bin/koha/svc/members/generate_cardnumber",
+                    method: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        // Re-enable the button after receiving a response
+                        $("#ub_generate_cardnumber").prop("disabled", false);
+                        if (data.cardnumber) {
+                            $("#cardnumber").val(data.cardnumber);
+                            update_cardnumber_warning($("#cardnumber").val().length);
+                        } else if (data.error) {
+                            alert("Error generating card number: " + data.error);
+                        } else {
+                            alert("Unknown error generating card number.");
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        // Re-enable the button if the AJAX request fails
+                        $("#ub_generate_cardnumber").prop("disabled", false);
+                        alert("AJAX error generating card number: " + textStatus + ", " + errorThrown);
+                    }
+                });
+            });
+        });
+    </script>
+[% END %]
+
+[% BLOCK 'ub-cardnumber-generator' %]
+    <span class="ub-cardnumber-generator">
+        <button id="ub_generate_cardnumber" class="btn btn-secondary" type="button">
+            <i class="fa fa-refresh" aria-hidden="true"></i> Generate card number
+        </button>
+    </span>
 [% END %]
 
 [% INCLUDE 'intranet-bottom.inc' %]
