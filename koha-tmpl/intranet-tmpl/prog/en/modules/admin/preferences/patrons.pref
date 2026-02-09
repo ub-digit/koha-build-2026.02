@@ -308,6 +308,12 @@ Patrons:
          - default the card number field on the patron addition screen to the next available card number (for example, if the largest currently used card number is 26345000012941, then this field will default to 26345000012942).
          - '<strong>NOTE:</strong> If <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=autoMemberNum">autoMemberNum</a> is enabled, the system preference <a href="/cgi-bin/koha/admin/preferences.pl?op=search&searchfield=BorrowerMandatoryField">BorrowerMandatoryField</a> must not contain the field <code>cardnumber</code>.'
      -
+         - pref: UBUseCardnumberGenerator
+           choices:
+               1: Do
+               0: "Don't"
+         - Add button next to cardnumber when editing or adding a patron to generate a cardnumber based on the requirements of UB.
+     -
          - Card numbers for patrons must be
          - pref: CardnumberLength
          - "characters long. The length can be a single number to specify an exact length, a range separated by a comma (i.e., 'Min,Max'), or a maximum with no minimum (i.e., ',Max')."
