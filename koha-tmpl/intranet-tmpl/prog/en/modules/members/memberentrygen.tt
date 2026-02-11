@@ -1921,29 +1921,34 @@
             $("#ub_generate_cardnumber").click(function(e) {
                 // Disable the button to prevent multiple clicks while the AJAX request is in progress
                 $("#ub_generate_cardnumber").prop("disabled", true);
-                e.preventDefault();
-                $.ajax({
-                    url: "/cgi-bin/koha/svc/members/generate_cardnumber",
-                    method: "GET",
-                    dataType: "json",
-                    success: function(data) {
-                        // Re-enable the button after receiving a response
-                        $("#ub_generate_cardnumber").prop("disabled", false);
-                        if (data.cardnumber) {
-                            $("#cardnumber").val(data.cardnumber);
-                            update_cardnumber_warning($("#cardnumber").val().length);
-                        } else if (data.error) {
-                            alert("Error generating card number: " + data.error);
-                        } else {
-                            alert("Unknown error generating card number.");
+                if(confirm("Är du säker på att du vill generera ett nytt kortnummer?")) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: "/cgi-bin/koha/svc/members/generate_cardnumber",
+                        method: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            // Re-enable the button after receiving a response
+                            $("#ub_generate_cardnumber").prop("disabled", false);
+                            if (data.cardnumber) {
+                                $("#cardnumber").val(data.cardnumber);
+                                update_cardnumber_warning($("#cardnumber").val().length);
+                            } else if (data.error) {
+                                alert("Error generating card number: " + data.error);
+                            } else {
+                                alert("Unknown error generating card number.");
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            // Re-enable the button if the AJAX request fails
+                            $("#ub_generate_cardnumber").prop("disabled", false);
+                            alert("AJAX error generating card number: " + textStatus + ", " + errorThrown);
                         }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        // Re-enable the button if the AJAX request fails
-                        $("#ub_generate_cardnumber").prop("disabled", false);
-                        alert("AJAX error generating card number: " + textStatus + ", " + errorThrown);
-                    }
-                });
+                    });
+                } else {
+                    // Re-enable the button if the user cancels the confirmation dialog
+                    $("#ub_generate_cardnumber").prop("disabled", false);
+                }
             });
         });
     </script>
