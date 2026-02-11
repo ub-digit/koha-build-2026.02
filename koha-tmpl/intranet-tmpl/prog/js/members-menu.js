@@ -68,9 +68,15 @@ $(document).ready(function () {
                     borrowernumber,
                 "printwindow"
             );
+        } else if (slip_code == "cardnumber_barcode") {
+            window.open(
+                "/cgi-bin/koha/members/cardnumber-barcode-print.pl?borrowernumber=" +
+                    borrowernumber,
+                "printwindow"
+            );
         } else {
             window.open(
-                "/cgi-bin/koha/members/printslip.pl?borrowernumber=" +
+            "/cgi-bin/koha/members/printslip.pl?borrowernumber=" +
                     borrowernumber +
                     "&amp;print=" +
                     slip_code,
