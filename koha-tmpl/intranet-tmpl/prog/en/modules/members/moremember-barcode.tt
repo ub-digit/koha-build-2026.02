@@ -1,0 +1,55 @@
+[% USE raw %]
+[% USE Koha %]
+[% USE Asset %]
+[% SET footerjs = 1 %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title
+    >[% FILTER collapse %]
+        [% t("Barcode for") | html %]
+        [% INCLUDE 'patron-title.inc' no_html = 1 %]
+        &rsaquo; [% t("Patrons") | html %] &rsaquo; [% t("Koha") | html %]
+    [% END %]</title
+>
+[% INCLUDE 'doc-head-close.inc' %]
+<style>
+    #main {
+        display: flex;
+        align-items: start;
+        justify-content: center;
+        height: 100vh;
+    }
+    .barcode {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #barcode-container {
+        width: 20rem;
+        margin-top: 10rem;
+    }
+
+    .barcode-cardnumber {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body id="pat_moremember-barcode" class="pat">
+<div id="main">
+    <div class="barcode">
+        <div id="barcode-container">
+            <svg id="patron-barcode" data-barcode="[% patron.cardnumber | html %]" data-barcode-format="[% barcode_format | html %]"></svg>
+        </div>
+        <div class="barcode-cardnumber">[% patron.cardnumber | html %]</div>
+    </div>
+</div>
+[% MACRO jsinclude BLOCK %]
+    [% Asset.js("lib/bwip-js/bwip-js-min.js") | $raw %]
+    [% Asset.js("js/barcode-generator.js") | $raw %]
+    [% INCLUDE 'slip-print.inc' #printThenClose %]
+[% END %]
+
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -52,6 +52,9 @@
                     [%# 2 is the privacy rule "Never" (Delete my history immediately) %]
                     <li><a class="dropdown-item printslip" data-code="checkinslip" href="#">Print checkin slip</a></li>
                 [% END %]
+                [% IF Koha.Preference('UBUseCardnumberGenerator') %]
+                    <li><a class="dropdown-item printslip" data-code="cardnumber_barcode" href="#">Print barcode</a></li>
+                [% END %]
                 [% FOREACH notice IN Notices.GetTemplates( 'patron_slip' ) %]
                     <li><a class="dropdown-item printslip" data-code="[% notice.code | html %]" href="#">Print [% notice.name | html %]</a></li>
                 [% END %]
