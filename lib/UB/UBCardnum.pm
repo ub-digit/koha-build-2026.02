@@ -40,7 +40,8 @@ sub create_sequence_if_not_exists {
     # Create the sequence 'ub_cardnum_source_sequence' if it does not exist
     unless (check_if_sequence_exists()) {
         my $dbh = C4::Context->dbh;
-        $dbh->do("CREATE SEQUENCE ub_cardnum_source_sequence START 1 INCREMENT 1 NO MINVALUE NO MAXVALUE CACHE 1");
+        # ALTER SEQUENCE ub_cardnum_source_sequence RESTART WITH 1000000;
+        $dbh->do("CREATE SEQUENCE ub_cardnum_source_sequence START 1000000 INCREMENT 1 NO MINVALUE NO MAXVALUE CACHE 1");
     }
 }
 
