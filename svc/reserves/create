@@ -52,6 +52,19 @@ unless ($branchcode) {
 my $item;
 if ($itemnumber) {
   $item = Koha::Items->find($itemnumber);
+  # If item is a reference to another item (hänvisningspost), the reserve needs to be placed on the target item, not the reference.
+  # This is identified by a permanent location ending with "0100", and the target item's barcode being in the URI of the reference item in the form urn:<barcode>.
+  if ($item->permanent_location and $item->permanent_location =~ /0100$/ and $item->uri and $item->uri =~ /urn:(\d+)/) {
+    my $target_barcode = $1;
+    my $target_item = Koha::Items->find({ barcode => $target_barcode });
+    # Check that the target item really exists
+    if ($target_item) {
+      $item = $target_item;
+      $itemnumber = $item->itemnumber;
+      $biblionumber = $item->biblionumber;
+    }
+  }
+
   my $item_biblionumber = $item->biblio->biblionumber;
   if ($biblionumber and $biblionumber != $item_biblionumber) {
     print $query->header(-type => 'text/xml', -status => '400');
