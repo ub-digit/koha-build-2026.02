@@ -179,7 +179,7 @@ sub is_editable {
     my $logged_in_borrowernumber = C4::Context->userenv->{'number'};
     if ($logged_in_borrowernumber) {
         my $patron = Koha::Patrons->find($logged_in_borrowernumber);
-        return $patron->_is_superlibrarian && !( $self->hidden || $self->readonly || $self->secret ) if $patron;
+        return $patron->is_superlibrarian || !( $self->hidden || $self->readonly || $self->secret ) if $patron;
     }
 }
 
