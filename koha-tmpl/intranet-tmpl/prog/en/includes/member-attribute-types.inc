@@ -66,9 +66,7 @@
                                                 id="[% patron_attribute.form_id | html %]"
                                                 name="[% patron_attribute.form_id | html %]"
                                                 [% IF patron_attribute.mandatory %]required="required"[% END %][% IF ( patron_attribute.readonly ) %]readonly[% END %]
-                                            >
-                                                [% patron_attribute.value | html %]
-                                            </textarea>
+                                            >[% patron_attribute.value | html %]</textarea>
                                         [% END %]
                                     [% END # /IF ( patron_attribute.use_dropdown ) %]
                                     <input type="hidden" id="[% patron_attribute.form_id | html %]_code" name="[% patron_attribute.form_id | html %]_code" value="[% patron_attribute.code | html %]" />
