@@ -152,7 +152,7 @@ if ( C4::Context->preference('ExtendedPatronAttributes') ) {
     for my $class (@classes) {
         my @items;
         for my $attr (@attributes) {
-            push @items, $attr if $attr->type->class eq $class && ( $is_superlibrarian || !$attr->hidden );
+            push @items, $attr if $attr->type->class eq $class && ( $is_superlibrarian || !$attr->type->hidden );
         }
         my $av  = Koha::AuthorisedValues->search( { category => 'PA_CLASS', authorised_value => $class } );
         my $lib = $av->count ? $av->next->lib : $class;
