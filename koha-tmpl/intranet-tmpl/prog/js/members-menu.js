@@ -155,6 +155,27 @@ $(document).ready(function () {
             }
         });
     });
+
+    $('#ubIdentifyPatron').on('click', function (e) {
+        e.preventDefault();
+        if (confirm("Är identitetshandling och kontaktuppgifter kontrollerade?")) {
+            e.preventDefault();
+            var borrowernumber = $(this).data("borrowernumber");
+            $.ajax({
+                url: "/cgi-bin/koha/svc/members/identify_patron",
+                method: "POST",
+                data: {
+                    borrowernumber: borrowernumber,
+                },
+                success: function () {
+                    location.reload();
+                },
+                error: function () {
+                    alert("Ett fel inträffade när identifikation skulle genomföras. Försök igen eller kontakta supporten.");
+                }
+            });
+        }
+    });
 });
 
 function searchfield_date_tooltip(filter) {

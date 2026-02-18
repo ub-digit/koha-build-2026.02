@@ -67,6 +67,11 @@
         <a id="toolbar_addnewmessageLabel" href="#add_message_form" data-bs-toggle="modal" class="btn btn-default"><i class="fa-solid fa-comment"></i> Add message</a>
     [% END %]
 
+    [% UNLESS patron.get_extended_attribute('IDENTIFIED') %]
+        <a id="ubIdentifyPatron" class="btn btn-default" href="#" data-borrowernumber="[% patron.borrowernumber | html %]">
+        <i class="fa-solid fa-id-card"></i> Legitimation kontrollerad</a>
+    [% END %]
+
     [% IF Koha.Preference('CurbsidePickup') %]
         <a id="curbsidePickupLabel" href="/cgi-bin/koha/circ/curbside_pickups.pl?op=find-patron&borrowernumber=[% patron.borrowernumber | html %]" class="btn btn-default"><i class="fa-solid fa-rotate"></i> Schedule pickup</a>
     [% END %]
