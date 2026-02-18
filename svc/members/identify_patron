@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use CGI qw ( -utf8 );
+use JSON;
+use XML::Simple;
+use C4::Auth qw/check_api_auth/;
+use Koha::Patron::Debarments qw(DelDebarment);
+
+use C4::Context;
+
+my $query = new CGI;
+binmode STDOUT, ':encoding(UTF-8)';
+
+my ($status, $cookie, $sessionID) = check_api_auth($query, { editcatalogue => 'edit_catalogue'} );
+unless ($status eq "ok") {
+  print $query->header(-type => 'text/xml', -status => '403 Forbidden');
+  print XMLout({ status => $status }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+my $borrowernumber = $query->param('borrowernumber');
+my $patron = Koha::Patrons->find($borrowernumber);
+unless ($patron) {
+    print $query->header(-type => 'text/xml', -status => '404 Not Found');
+    print XMLout({ status => 'patron_not_found' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+    exit 0;
+}
+
+# Set the IDENTIFIED attribute for the patron to '1'
+my $code = 'IDENTIFIED';
+my $attribute = '1';
+# Remove any existing IDENTIFIED attribute to avoid duplicates, then add the new one
+$patron->extended_attributes->search({code => $code})->delete;
+$patron->add_extended_attribute({code => $code, attribute => $attribute});
+
+# Remove any existing debarment starting with "WR"
+my $debarments = $patron->restrictions->unblessed;
+my @filtered_debarments = grep { $_->{comment} =~ /^WR,/ } @{$debarments};
+foreach (@filtered_debarments) {
+    DelDebarment($_->{borrower_debarment_id});
+}
+
+print $query->header(-type => 'text/json',-charset => 'utf-8');
+print encode_json({status => 'ok'});
