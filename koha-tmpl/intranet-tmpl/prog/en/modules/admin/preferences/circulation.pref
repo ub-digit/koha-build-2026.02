@@ -3,9 +3,9 @@ Circulation:
         -
           - pref: HideCircReports
             choices:
-              yes: Hide
-              no: Show
-          - hide the circulation reports on all Circulation pages.
+              1: Hide
+              0: Show
+          - the circulation reports on all Circulation pages.
         -
             - pref: CircSidebar
               choices:
