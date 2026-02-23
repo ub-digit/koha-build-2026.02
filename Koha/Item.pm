@@ -137,9 +137,20 @@ sub store {
             $self->cn_sort($cn_sort);
         }
 
-        # should be quite rare when adding item
-        if ( $self->itemlost && $self->itemlost > 0 ) {    # TODO BZ34308
-            $self->_add_statistic('item_lost');
+        my @fields = qw( itemlost withdrawn damaged );
+        for my $field (@fields) {
+            # should be quite rare when adding item
+            if ( $self->$field && $self->$field > 0 ) {    # TODO BZ34308
+                # For now, only add statistic for itemlost
+                if ( $field eq 'itemlost' ) {
+                    $self->_add_statistic('item_lost');
+                }
+                # Add hook for plugins to trigger when an item is added with lost status
+                # For consistency with modify, set "from" to 0 and "to" to the new value
+                my $from = 0;
+                my $to = $self->$field;
+                $self->_after_item_action_hooks( { action => 'create_'.$field, extras => { from => $from, to => $to } } );
+            }
         }
 
     } else {    # ModItem
@@ -185,6 +196,16 @@ sub store {
             {
                 my $field_on = "${field}_on";
                 $self->$field_on(dt_from_string);
+            }
+
+            # Add hook for plugins to trigger when an item is modified with itemlost/withdrawn/damaged status change
+            # This has to be done separately from the above, since it needs to trigger even
+            # when status was already set to another value.
+            # Add "extras" as parameter with "from" and "to" values for status with 0 for "no lost"
+            if ( exists $updated_columns{$field} && $updated_columns{$field} != ( $pre_mod_item->$field // 0 ) ) {
+                my $from = defined $pre_mod_item->$field && $pre_mod_item->$field > 0 ? $pre_mod_item->$field : 0;
+                my $to   = defined $self->$field && $self->$field > 0 ? $self->$field : 0;
+                $self->_after_item_action_hooks( { action => 'modify_'.$field, extras => { from => $from, to => $to } } );
             }
         }
 
@@ -2479,6 +2500,12 @@ sub _after_item_action_hooks {
     my ( $self, $params ) = @_;
 
     my $action = $params->{action};
+    my $payload = { item => $self, item_id => $self->itemnumber };
+    my $extras = $params->{extras} // {};
+    # If there is a $params->{extras} merge it with the default payload
+    if ( $extras ) {
+        $payload = { %$payload, %$extras };
+    }
 
     Koha::Plugins->call(
         'after_item_action',
@@ -2486,7 +2513,7 @@ sub _after_item_action_hooks {
             action  => $action,
             item    => $self,                                             #FIXME To be deprecated
             item_id => $self->itemnumber,                                 #FIXME To be deprecated
-            payload => { item => $self, item_id => $self->itemnumber },
+            payload => $payload,
         }
     );
 }
