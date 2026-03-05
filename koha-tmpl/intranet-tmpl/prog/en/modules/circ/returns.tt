@@ -870,7 +870,7 @@
                 [% print_button = '<button type="button" class="btn btn-default print" accesskey="p"> <i class="fa fa-print"></i> ' _ t('Print slip, transfer, and confirm') _ ' (P) </button>' %]
             [% ELSE %]
                 [% confirm_button_text = t('Confirm hold') %]
-                [% print_button = '<button type="button" class="btn btn-default print" accesskey="p"> <i class="fa fa-print"></i> ' _ t('Print slip and confirm') _ ' (P) </button>' %]
+                [% print_button = '<button type="button" id="gub-hold-found-focus" class="btn btn-default print" accesskey="p"> <i class="fa fa-print"></i> ' _ t('Print slip and confirm') _ ' (P) </button>' %]
             [% END %]
 
             [% SET modal_print_url = reserve_id | uri %]
@@ -1749,11 +1749,15 @@
             if ($('#item-transfer-modal .modal-footer').is(':visible')) {
                 $('#item-transfer-modal #gub-item-transfer-focus').focus();
             };
+            if ($('#hold-found-modal .modal-footer').is(':visible')) {
+                if( $('#hold-found-modal #gub-hold-found-focus').is(':visible')) {
+                    $('#hold-found-modal #gub-hold-found-focus').focus();
+                } else {
+                    $('#hold-found-modal #hold-found-modal-confirm').focus();
+                }
+            };
             if ($('#hold-found1 .modal-footer').is(':visible')) {
                 $('#hold-found1 #gub-hold-found1-focus').focus();
-            };
-            if ($('#hold-found2 .modal-footer').is(':visible')) {
-                $('#hold-found2 #gub-hold-found2-focus').focus();
             };
         });
     </script>
