@@ -44,7 +44,11 @@
                                 <input type="hidden" name="op" value="cud-del" />
                                 <input type="hidden" name="borrowernumber" value="[% patron.borrowernumber | uri %]" />
                                 <input type="hidden" name="borrower_debarment_id" value="[% restriction.borrower_debarment_id | uri %]" />
-                                <button type="submit" class="remove_restriction btn btn-default btn-xs"><i class="fa fa-trash-can"></i> Remove</button>
+                                [% IF Koha.Preference('UBUseCardnumberGenerator') && !patron.get_extended_attribute('IDENTIFIED') %]
+                                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="Låntagaren måste vara legitimerad för att hantera begränsningar."><button type="submit"  class="disabled remove_restriction btn btn-default btn-xs" ><i class="fa fa-trash-can"></i> Remove</button></span>
+                                [% ELSE %]
+                                    <button type="submit" class="remove_restriction btn btn-default btn-xs"><i class="fa fa-trash-can"></i> Remove</button>
+                                [% END %]
                             </form>
                         </td>
                     [% END %]
