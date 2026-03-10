@@ -55,6 +55,15 @@
                             <input type="submit" class="btn btn-primary" value="Search" />
                         </p>
                     </form>
+                    <ul style="list-style-type: none; padding-left: 0; display: flex; flex-direction: row; gap: 1.5rem; margin-left: 1.5rem;">
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=1">Adlibris</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=5">Bokus</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=9">Delbanco</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=8">Erasmus Books</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=6">EBSCO (GOBI)</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=7">Jure</a></li>
+                        <li><a href="/cgi-bin/koha/acqui/booksellers.pl?booksellerid=4">Övriga leverantörer</a></li>
+                    </ul>
                 </fieldset>
             </div>
         </div>
