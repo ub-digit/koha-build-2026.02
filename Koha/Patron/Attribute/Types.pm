@@ -94,6 +94,8 @@ sub patron_attributes_form {
                 my $newentry = {%$entry};
                 $newentry->{value}        = $attr->{attribute};
                 $newentry->{use_dropdown} = 0;
+                $i++;
+                $newentry->{form_id} = "patron_attr_$i";
 
                 if ( !$is_superlibrarian && ( $attr_type->hidden() || $attr_type->secret() ) ) {
                     push @hidden_attributes, $newentry;
@@ -104,8 +106,6 @@ sub patron_attributes_form {
                             GetAuthorisedValues( $attr_type->authorised_value_category(), $attr->{attribute} );
                     }
                     undef $newentry->{value} if ( $attr_type->unique_id() && $op eq 'duplicate' );
-                    $i++;
-                    $newentry->{form_id} = "patron_attr_$i";
                     push @{ $items_by_class{ $attr_type->class() } }, $newentry;
                 }
             }
