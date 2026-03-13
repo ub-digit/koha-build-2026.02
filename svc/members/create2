@@ -13,6 +13,7 @@ use C4::Members;
 use Koha::Patron;
 use Koha::Patron::Debarments qw/AddDebarment/;
 use C4::Members::Messaging;
+use UB::UBCardnum;
 
 use Data::Dumper;
 my $query = new CGI;
