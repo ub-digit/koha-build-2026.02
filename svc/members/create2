@@ -39,7 +39,11 @@ if ($cardnumber) {
   $borrower{'cardnumber'} = $cardnumber;
 }
 else {
-  $borrower{'cardnumber'} = $personalnumber;
+  if(C4::Context->preference('UBUseCardnumberGenerator')) {
+    $borrower{'cardnumber'} = UB::UBCardnum::create_cardnum();
+  } else {
+    $borrower{'cardnumber'} = $personalnumber;
+  }
 }
 
 # Mandatory borrower fields
