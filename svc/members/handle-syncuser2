@@ -68,7 +68,11 @@ if (!$borrowernumber) {
     $pnr12 = "19" . $personalnumber;
   }
 
-  $borrower{'cardnumber'} = $pnr12;
+  if(C4::Context->preference('UBUseCardnumberGenerator')) {
+    $borrower{'cardnumber'} = UB::UBCardnum::create_cardnum();
+  } else {
+    $borrower{'cardnumber'} = $pnr12;
+  }
   
   # Mandatory borrower fields
   $borrower{'password'} = UUID::uuid();
