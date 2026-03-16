@@ -687,25 +687,7 @@
                                     <h4>Notes: [% reservenotes | html %]</h4>
                                 [% END %]
 
-                                <h4>Hold for:</h4>
-                                <ul>
-                                    <li>
-                                        [% INCLUDE 'patron-title.inc' patron=patron hide_patron_infos_if_needed=1 invert_name=1 link_to="circulation_reserves" %]
-                                        <span class="patron-category"> - [% patron.category.description | html %]</span>
-                                    </li>
-
-                                    [% IF ( patron.smsalertnumber ) %]
-                                        <li><a id="borsmsalertnumber" href="tel:[% patron.smsalertnumber | html %]">[% patron.smsalertnumber | html %]</a></li>
-                                    [% END %]
-
-                                    [% IF ( patron.is_debarred ) %]
-                                        <li class="error">Patron is RESTRICTED</li>
-                                    [% END %]
-
-                                    [% IF ( patron.gonenoaddress ) %]
-                                        <li class="error">Patron's address is in doubt</li>
-                                    [% END %]
-                                </ul>
+                                <h4>Hold for [% INCLUDE 'patron-title.inc' patron=patron hide_patron_infos_if_needed=1 invert_name=1 link_to="circulation_reserves" %] - [% patron.category.description | html %]</h4>
 
                                 [% IF ( transfertodo ) %]
                                     <h4><strong>Transfer to:</strong> [% Branches.GetName( destbranch ) | html %]</h4>
@@ -886,48 +868,8 @@
                     <p>[% reservenotes | html %]</p>
                     <hr />
                 [% END %]
-                <h4>[% t('Hold for') | html %]:</h4>
-                <ul>
-                    <li>
-                        [% INCLUDE 'patron-title.inc' patron=patron hide_patron_infos_if_needed=1 invert_name=1 link_to="circulation_reserves" %]
-                        <span class="patron-category"> - [% patron.category.description | html %]</span>
-                    </li>
+                <h4>[% t('Hold for') | html %] [% INCLUDE 'patron-title.inc' patron=patron hide_patron_infos_if_needed=1 invert_name=1 link_to="circulation_reserves" %] - [% patron.category.description | html %]</h4>
 
-                    [% IF ( patron.smsalertnumber ) %]
-                        <li><a id="borsmsalertnumber" href="tel:[% patron.smsalertnumber | html %]">[% patron.smsalertnumber | html %]</a></li>
-                    [% END %]
-
-                    [% UNLESS ( transfertodo) %]
-                        [% INCLUDE display_bormessagepref %]
-                        [% IF patron.primary_contact_method %]
-                            <li id="main_contact_method">
-                                [% t('Main contact method') | html %]:
-                                [% SWITCH patron.primary_contact_method %]
-                                [% CASE 'phone' %]
-                                    <span>[% t('Primary phone') | html %]</span>
-                                [% CASE 'phonepro' %]
-                                    <span>[% t('Secondary phone') | html %]</span>
-                                [% CASE 'mobile' %]
-                                    <span>[% t('Other phone') | html %]</span>
-                                [% CASE 'email' %]
-                                    <span>[% t('Primary email') | html %]</span>
-                                [% CASE 'emailpro' %]
-                                    <span>[% t('Secondary email') | html %]</span>
-                                [% CASE 'fax' %]
-                                    <span>[% t('Fax') | html %]</span>
-                                [% END %]
-                            </li>
-                        [% END %]
-                    [% END %]
-
-                    [% IF ( patron.is_debarred ) %]
-                        <li class="error">[% t('Patron is RESTRICTED') | html %]</li>
-                    [% END %]
-
-                    [% IF ( patron.gonenoaddress ) %]
-                        <li class="error">[% t("Patron's address is in doubt") | html %]</li>
-                    [% END %]
-                </ul>
                 [% IF ( transfertodo ) %]
                     <h4><strong>[% t('Transfer to') | html %]:</strong> [% Branches.GetName( destbranch ) | html %]</h4>
                 [% ELSE %]
