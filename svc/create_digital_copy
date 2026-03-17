@@ -1,0 +1,186 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use utf8;
+
+use C4::Auth qw/check_api_auth/;
+use C4::Biblio qw( AddBiblio );
+use MARC::Record;
+use XML::Simple;
+use POSIX qw(strftime);
+use CGI;
+
+my $query = new CGI;
+binmode STDOUT, ':encoding(UTF-8)';
+
+my ($status, $cookie, $sessionID) = check_api_auth($query, { editcatalogue => 'edit_catalogue'} );
+unless ($status eq "ok") {
+  print $query->header(-type => 'text/xml', -status => '403 Forbidden');
+  print XMLout({ status => $status }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+my $title = $query->param('title');
+my $author = $query->param('author');
+my $language = $query->param('language');
+my $pubyear = $query->param('pubyear');
+my $branch = $query->param('branch');
+my $location = $query->param('location');
+
+my $dflow_job_id = $query->param('job_id');
+my $dflow_package_name = $query->param('package_name');
+
+unless ($title) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "title is required", error_code => 'title_is_req' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+unless ($branch) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "branch is required", error_code => 'branch_is_req' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+unless ($location) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "location is required", error_code => 'location_is_req' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+unless ($dflow_job_id) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "job_id is required", error_code => 'job_id_is_req' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+unless ($dflow_package_name) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "package_name is required", error_code => 'package_name_is_req' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+# Get current time
+my $current_time = time();
+
+my $barcode = "D". strftime("%Y%m%d", localtime($current_time)) . $dflow_job_id . "001";
+my $itemobj = Koha::Items->find({barcode => $barcode});
+if ($itemobj) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "item already exists", error_code => 'item_already_exists' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+$title =~ s/'/\'/g;
+$author =~ s/'/\'/g if $author;
+
+if ($pubyear) {
+  $pubyear =~ s/[^0-9]//ig;
+}
+
+my $tmplanguage = "swe";
+$tmplanguage = $language if ($language and length($language) == 3);
+
+my $tmppubyear = "    ";
+$tmppubyear = $pubyear if ($pubyear and length($pubyear) == 4);
+
+my $record = MARC::Record->new();
+$record->encoding('UTF-8');
+
+$record->leader("00000nam a22000005a 4500");
+
+my $year = strftime "%Y", localtime($current_time);
+my $month = strftime "%m", localtime($current_time);
+my $day = strftime "%d", localtime($current_time);
+my $hour = strftime "%H", localtime($current_time);
+my $min = strftime "%M", localtime($current_time);
+my $sec = strftime "%S", localtime($current_time);
+my $shyear = sprintf("%02d", $year % 100);
+my $shdate = $shyear.$month.$day;
+my $datetime =  sprintf("%4d%02d%02d%02d%02d%02d.0", $year, $month, $day, $hour, $min, $sec);
+
+my $f_005 = MARC::Field->new('005', $datetime);
+
+my $f_008 = MARC::Field->new('008', "$shdate".'s'."$tmppubyear".'                 |||||||'.$tmplanguage.'||');
+
+$record->append_fields($f_005,$f_008);
+
+## create an author field
+if ($author) {
+  my $f_100 = MARC::Field->new('100', 1, ' ', a => "$author");
+  $record->append_fields($f_100);
+}
+
+## create a title field
+my $f_245 = MARC::Field->new('245', '1', '0', a => "$title");
+if ($f_245 and $f_245->as_string() =~ /^The |^Den |^Det |^Der |^Die |^Das |^Ett |^Ein |^Une /) {
+  if ($f_245->indicator(2) != 4) {
+    $f_245->update(ind2 => 4);
+  }
+}
+if ($f_245 and $f_245->as_string() =~ /^En |^An |^La |^Le |^Un /) {
+  if ($f_245->indicator(2) != 3) {
+    $f_245->update(ind2 => 3);
+  }
+}
+if ($f_245 and $f_245->as_string() =~ /^A /) {
+  if ($f_245->indicator(2) != 2) {
+    $f_245->update(ind2 => 2);
+  }
+}
+
+$record->append_fields($f_245);
+
+## create a 042 field
+my $f_042 = MARC::Field->new('042', '', '', 9 => "DFLOW");
+$record->append_fields($f_042);
+
+## create a 260 field
+if ($pubyear) {
+  my $f_260 = MARC::Field->new('260', '', '', c => "$pubyear");
+  $record->append_fields($f_260);
+}
+
+## create a 942 field
+my $f_942 = MARC::Field->new('942', '', '', n => "1");
+$record->append_fields($f_942);
+
+## create a 951 field
+my $f_951 = MARC::Field->new('951', '', '', a => "DFLOW");
+$record->append_fields($f_951);
+
+## create a 997 field, with subfield a containing the job_id and package name
+my $f_997 = MARC::Field->new('997', '', '', a => "$dflow_job_id $dflow_package_name");
+$record->append_fields($f_997);
+
+my $frameworkcode = "LS";
+my $biblionumber;
+my $biblioitemnumber;
+
+($biblionumber,$biblioitemnumber) = AddBiblio($record, $frameworkcode);
+unless ($biblionumber) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "add biblio error", error_code => 'add_biblio_error' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+my $itemnumber = Koha::Item->new(
+    {
+        homebranch => $branch,
+        holdingbranch => $branch,
+        permanent_location => $location,
+        location => $location,
+        itemcallnumber => "$dflow_package_name". '.pdf ' ."$shdate", #GUB0asdfgh
+        barcode => $barcode,
+        itype => "6", # Digital kopia
+        biblionumber => $biblionumber
+    }
+)->store->itemnumber;
+
+unless ($itemnumber) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "add item error", error_code => 'add_item_error' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+print $query->header(-type => 'text/xml',-charset => 'utf-8', -status => '201');
+print XMLout({biblionumber => $biblionumber, biblioitemnumber => $biblioitemnumber, itemnumber => $itemnumber}, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+exit 0;
