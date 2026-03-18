@@ -22,7 +22,18 @@ unless ($status eq "ok") {
 }
 
 my $cardnumber = $query->param('cardnumber');
-my $patron = Koha::Patrons->find({ cardnumber => $cardnumber });
+
+my $patrons;
+if (length($cardnumber) == 12) {
+  $patrons = Koha::Patrons->search({ 'extended_attributes.code' => 'PNR12', 'extended_attributes.attribute' => $cardnumber }, { join => 'extended_attributes' });
+  if ($patrons->count == 0) {
+    $patrons = Koha::Patrons->search({cardnumber => $cardnumber});
+  }
+} else {
+   $patrons = Koha::Patrons->search({cardnumber => $cardnumber});
+}
+
+my $patron = $patrons->next;
 
 if (!$patron) {
     print $query->header(-type => 'application/json',-charset => 'utf-8');
