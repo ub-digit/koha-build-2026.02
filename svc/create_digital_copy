@@ -148,10 +148,10 @@ my $f_951 = MARC::Field->new('951', '', '', a => "DFLOW");
 $record->append_fields($f_951);
 
 ## create a 997 field, with subfield a containing the job_id and package name
-my $f_997 = MARC::Field->new('997', '', '', a => "$dflow_job_id $dflow_package_name");
+my $f_997 = MARC::Field->new('997', '', '', a => $dflow_job_id, a => $dflow_package_name);
 $record->append_fields($f_997);
 
-my $frameworkcode = "LS";
+my $frameworkcode = "DCPY";
 my $biblionumber;
 my $biblioitemnumber;
 
@@ -168,9 +168,9 @@ my $itemnumber = Koha::Item->new(
         holdingbranch => $branch,
         permanent_location => $location,
         location => $location,
-        itemcallnumber => "$dflow_package_name". '.pdf ' ."$shdate", #GUB0asdfgh
+        itemcallnumber => "$dflow_package_name". '.pdf ' ."$shdate",
         barcode => $barcode,
-        itype => "6", # Digital kopia
+        itype => "20", # Digital kopia
         biblionumber => $biblionumber
     }
 )->store->itemnumber;
