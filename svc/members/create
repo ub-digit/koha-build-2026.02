@@ -14,6 +14,9 @@ use Koha::Patron;
 use Koha::Patron::Debarments qw/AddDebarment/;
 use C4::Members::Messaging;
 
+# Implemented in branch gub-dev-cardnumber-generator
+use UB::UBCardnum;
+
 use Data::Dumper;
 my $query = new CGI;
 binmode STDOUT, ':encoding(UTF-8)';
@@ -38,7 +41,7 @@ if ($cardnumber) {
   $borrower{'cardnumber'} = $cardnumber;
 }
 else {
-  $borrower{'cardnumber'} = $personalnumber;
+  $borrower{'cardnumber'} = UB::UBCardnum::create_cardnum();
 }
 
 # Mandatory borrower fields
@@ -130,6 +133,7 @@ $borrower{'sms_provider_id'} = 1;
 
 my $patron = Koha::Patron->new({%borrower})->store;
 my $borrowernumber = $patron->borrowernumber;
+my $cardnumber = $patron->cardnumber;
 
 # Always set ACCEPT to "1" (YES), because it is now a YES_NO attribute, and to get to this point the user has accepted the terms
 if ($origin and $origin eq "gukort") {
@@ -171,7 +175,7 @@ if ($messaging_format) {
 }
 
 print $query->header(-type => 'text/xml',-charset => 'utf-8', -status => '201');
-print XMLout({ borrownumber => $borrowernumber }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+print XMLout({ borrowernumber => $borrowernumber, cardnumber => $cardnumber }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
 
 sub can_update_pin {
     my ($borrower) = @_;
