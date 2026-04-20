@@ -71,18 +71,16 @@
         <a id="toolbar_addnewmessageLabel" href="#add_message_form" data-bs-toggle="modal" class="btn btn-default"><i class="fa-solid fa-comment"></i> Add message</a>
     [% END %]
 
-    [% IF !Koha.Preference('UBUseCardnumberGenerator') %]
-        [% IF patron.borrowernumber && UBExtgen.GenPWAllowed(patron.borrowernumber) %]
-        <a id="ubExtgenLabel" class="btn btn-default"
-            title="Skapar nytt lösenord för Mina lån, bibliotekets datorer, skrivare och GUprint webb"
-            href="/cgi-bin/koha/members/gen_pw.pl?borrowernumber=[% patron.borrowernumber | html %]">
-            <i class="fa fa-key"></i> Skapa lösenord</a>
-        [% ELSE %]
-            <div id="ubExtgenLabel" class="btn btn-default disabled"
-            title="[% UBExtgen.DeniedReason(patron) %]"
-            href="#">
-            <i class="fa fa-key"></i> Skapa lösenord</div>
-        [% END %]
+    [% IF patron.borrowernumber && UBExtgen.GenPWAllowed(patron.borrowernumber) %]
+    <a id="ubExtgenLabel" class="btn btn-default"
+        title="Skapar nytt lösenord för Mina lån, bibliotekets datorer, skrivare och GUprint webb"
+        href="/cgi-bin/koha/members/gen_pw.pl?borrowernumber=[% patron.borrowernumber | html %]">
+        <i class="fa fa-key"></i> Skapa lösenord</a>
+    [% ELSE %]
+        <div id="ubExtgenLabel" class="btn btn-default disabled"
+        title="[% UBExtgen.DeniedReason(patron) %]"
+        href="#">
+        <i class="fa fa-key"></i> Skapa lösenord</div>
     [% END %]
 
     [% IF Koha.Preference("UBUseCardnumberGenerator") && !patron.get_extended_attribute('IDENTIFIED') %]
@@ -177,20 +175,6 @@
                         <li>
                             <a class="dropdown-item" id="exportcheckins" href="#">Export today's checked in barcodes</a>
                         </li>
-                    [% END %]
-                [% END %]
-                [% IF Koha.Preference('UBUseCardnumberGenerator') %]
-                    [% IF patron.borrowernumber && UBExtgen.GenPWAllowed(patron.borrowernumber) %]
-                    <li><a id="ubExtgenLabel" a class="dropdown-item"
-                        title="Skapar nytt lösenord för Mina lån, bibliotekets datorer, skrivare och GUprint webb"
-                        href="/cgi-bin/koha/members/gen_pw.pl?borrowernumber=[% patron.borrowernumber | html %]">
-                        Låntagaren har glömt eller behöver nytt lösenord</a></li>
-                    [% ELSE %]
-                    <li data-bs-toggle="tooltip" data-bs-placement="left" title="[% UBExtgen.DeniedReason(patron) %]">
-                        <a id="ubExtgenLabel" class="dropdown-item disabled" aria-disabled="true" 
-                        title="[% UBExtgen.DeniedReason(patron) %]"
-                        href="#">Låntagaren har glömt eller behöver nytt lösenord</a>
-                    </li>
                     [% END %]
                 [% END %]
             </ul>
