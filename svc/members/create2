@@ -142,7 +142,8 @@ if ($origin and $origin eq "gukort") {
         {code => "PNR12", attribute => $personalnumber},
         {code => "PNR", attribute => substr($personalnumber, 2)},
         {code => "ACCEPT", attribute => "1"},
-        {code => "IMPORT", attribute => "gukort"}
+        {code => "IMPORT", attribute => "gukort"},
+        {code => "IDENTIFIED", attribute => "1"}
         ];
     if(defined($last_employment_date) && $last_employment_date) {
         push(@{$attributes}, {code => "ANSTSLUT", attribute => $last_employment_date});
