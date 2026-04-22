@@ -55,7 +55,6 @@ $borrower{'surname'} = $query->param('surname');
 $borrower{'address'} = $query->param('address');
 $borrower{'city'} = $query->param('city');
 $borrower{'lang'} = $query->param('lang');
-$borrower{'dateexpiry'} = $query->param('dateexpiry');
 
 # Optional fields
 my $patronuserid = $query->param('patronuserid');
@@ -133,6 +132,8 @@ if ("gna" ~~ @debarments) {
 $borrower{'sms_provider_id'} = 1;
 
 my $patron = Koha::Patron->new({%borrower})->store;
+$patron->renew_account;
+
 my $borrowernumber = $patron->borrowernumber;
 
 # Always set ACCEPT to "1" (YES), because it is now a YES_NO attribute, and to get to this point the user has accepted the terms
