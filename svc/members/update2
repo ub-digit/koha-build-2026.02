@@ -231,6 +231,8 @@ else { #$action eq 'update'
   $borrower->add_extended_attribute({code => "ACCEPT", attribute => "1"});
   $borrower->extended_attributes->search({code => "IMPORT"})->delete;
   $borrower->add_extended_attribute({code => "IMPORT", attribute => "gukort updat"});
+  $borrower->extended_attributes->search({code => "IDENTIFIED"})->delete;
+  $borrower->add_extended_attribute({code => "IDENTIFIED", attribute => "1"});
 
 
 
