@@ -231,9 +231,19 @@ else { #$action eq 'update'
   $borrower->add_extended_attribute({code => "ACCEPT", attribute => "1"});
   $borrower->extended_attributes->search({code => "IMPORT"})->delete;
   $borrower->add_extended_attribute({code => "IMPORT", attribute => "gukort updat"});
-  $borrower->extended_attributes->search({code => "IDENTIFIED"})->delete;
-  $borrower->add_extended_attribute({code => "IDENTIFIED", attribute => "1"});
 
+  # Only add/replace IDENTIFIED when user is properly associated with GU.
+  if ($msgtype eq "card" || $msgtype eq "student_participation" || $msgtype eq "employee_pop") {
+    $borrower->extended_attributes->search({code => "IDENTIFIED"})->delete;
+    $borrower->add_extended_attribute({code => "IDENTIFIED", attribute => "1"});
+    # Remove WR debarment if we get an update from GU. For "card" it is already removed above, but for
+    # other message types we need to remove it here.
+    my $debarments = $borrower->restrictions->unblessed;
+    my @filtered_debarments = grep { $_->{comment} =~ /^WR,/ } @{$debarments};
+    foreach (@filtered_debarments) {
+        DelDebarment($_->{borrower_debarment_id});
+    }
+  }
 
 
   if (-e "/usr/local/etc/gucard_replace.sh") {
