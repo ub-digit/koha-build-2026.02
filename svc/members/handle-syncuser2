@@ -110,7 +110,8 @@ if (!$borrowernumber) {
     {code => "PNR", attribute => $personalnumber},
     {code => "PNR12", attribute => $pnr12},
     {code => "ACCEPT", attribute => "1"},
-    {code => "IMPORT", attribute => "gukort-syncuser"}
+    {code => "IMPORT", attribute => "gukort-syncuser"},
+    {code => "IDENTIFIED", attribute => "1"}
     ];
   $patron->extended_attributes($attributes);
 
