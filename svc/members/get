@@ -30,6 +30,13 @@ unless ($borrower) {
 }
 
 unless ($borrower) {
+  $patrons = Koha::Patrons->search({ 'extended_attributes.code' => 'PNR12', 'extended_attributes.attribute' => $userid }, { join => 'extended_attributes' });
+  if ($patrons->count == 1) {
+    $borrower = $patrons->next;
+  }
+}
+
+unless ($borrower) {
   print $query->header(-type => 'text/xml', -status => '404 Not found');
   print XMLout({ status => 'Borrower not found', error_code => 'borrowerNotFound' }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
   exit 0;
