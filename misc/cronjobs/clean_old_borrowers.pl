@@ -16,7 +16,7 @@ my $sql = "SELECT b.borrowernumber
     LEFT OUTER JOIN accountlines al 
       ON al.borrowernumber=b.borrowernumber
       AND al.amountoutstanding > 0
-    WHERE b.dateexpiry < DATE_SUB(NOW(), INTERVAL 2 YEAR)
+    WHERE b.dateexpiry < DATE_SUB(DATE_SUB(NOW(), INTERVAL 2 YEAR), INTERVAL 4 WEEK)
     AND  i.borrowernumber IS NULL
     AND  r.borrowernumber IS NULL
     AND al.borrowernumber IS NULL
