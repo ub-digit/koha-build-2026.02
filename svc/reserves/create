@@ -50,6 +50,7 @@ unless ($branchcode) {
 }
 
 my $item;
+my $item_referenced = "false";
 if ($itemnumber) {
   $item = Koha::Items->find($itemnumber);
   # If item is a reference to another item (hänvisningspost), the reserve needs to be placed on the target item, not the reference.
@@ -60,6 +61,7 @@ if ($itemnumber) {
     # Check that the target item really exists
     if ($target_item) {
       $item = $target_item;
+      $item_referenced = "true";
       $itemnumber = $item->itemnumber;
       $biblionumber = $item->biblionumber;
     }
@@ -125,5 +127,5 @@ if ($reserve->{priority} ne '0') {
 }
 
 print $query->header(-type => 'text/xml',-charset => 'utf-8', -status => '201');
-print XMLout({ reserve => $reserve, queue_position => $queue_position }, NoAttr => 1, RootName => 'response', XMLDecl => 1, SuppressEmpty => 1);
+print XMLout({ reserve => $reserve, queue_position => $queue_position, item_referenced => $item_referenced }, NoAttr => 1, RootName => 'response', XMLDecl => 1, SuppressEmpty => 1);
 exit 0;
