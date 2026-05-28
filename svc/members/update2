@@ -9,7 +9,7 @@ use C4::Auth qw/check_api_auth/;
 
 use C4::Members;
 use Koha::Patron::Debarments qw(AddDebarment DelDebarment);
-
+use UB::UBCardnum;
 use Data::Dumper;
 
 my $query = new CGI;
@@ -242,6 +242,12 @@ else { #$action eq 'update'
     my @filtered_debarments = grep { $_->{comment} =~ /^WR,/ } @{$debarments};
     foreach (@filtered_debarments) {
         DelDebarment($_->{borrower_debarment_id});
+    }
+    if (!$incoming_cardnumber) {
+      # Generate cardnumber if existing cardnumber is of length 12 and generator is activated
+      if(C4::Context->preference('UBUseCardnumberGenerator') && length($existing_cardnumber) == 12) {
+        $newdata{'cardnumber'} = UB::UBCardnum::create_cardnum();
+      }
     }
   }
 
