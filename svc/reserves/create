@@ -23,13 +23,20 @@ unless ($status eq "ok") {
   exit 0;
 }
 
-my $borrowernumber = $query->param('borrowernumber');
+my $cardnumber = $query->param('cardnumber');
 my $biblionumber = $query->param('biblionumber');
 my $itemnumber = $query->param('itemnumber');
 my $branchcode = $query->param('branchcode');
 my $reservenotes = $query->param('reservenotes');
 
-my $borrower = Koha::Patrons->find($borrowernumber);
+unless ($cardnumber) {
+  print $query->header(-type => 'text/xml', -status => '400');
+  print XMLout({ status => "Cardnumber is required", error_code => "cardNumberMissing" }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+  exit 0;
+}
+
+my $borrower = Koha::Patrons->find( { cardnumber => $cardnumber } );
+my $borrowernumber = $borrower->borrowernumber;
 
 unless ($borrower) {
   print $query->header(-type => 'text/xml', -status => '404');
