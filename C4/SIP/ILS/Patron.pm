@@ -43,14 +43,14 @@ sub find_by_pnr {
     # First try with the full 12 digits
     my $attr12 = Koha::Patron::Attributes->find( { code => 'PNR12', attribute => $patron_id } );
     return if !$attr12;
-    my $patron12 = Koha::Patrons->find($attr12->borrowernumber());
+    my $patron12 = Koha::Patrons->find($attr12->borrowernumber(), {cache => 0});
     return $patron12 if $patron12;
 
     # Now try with the last 10 digits against PNR
     my $pnr10 = substr($patron_id, -10);
     my $attr10 = Koha::Patron::Attributes->find( { code => 'PNR', attribute => $pnr10 } );
     return if !$attr10;
-    my $patron10 = Koha::Patrons->find($attr10->borrowernumber());
+    my $patron10 = Koha::Patrons->find($attr10->borrowernumber(), {cache => 0});
     return $patron10 if $patron10;
     return;
 }
@@ -74,16 +74,16 @@ sub new {
             if (length($patron_id->{cardnumber}) == 12 && C4::Context->preference('UsePNRAsIdentifierInSIP')) {
                 $patron = find_by_pnr($patron_id->{cardnumber}, \*FD);
             } else {
-                $patron = Koha::Patrons->find( { cardnumber => $patron_id->{cardnumber} } );
+                $patron = Koha::Patrons->find( { cardnumber => $patron_id->{cardnumber} }, {cache => 0} );
             }
         } elsif ( $patron_id->{userid} ) {
-            $patron = Koha::Patrons->find( { userid => $patron_id->{userid} } );
+            $patron = Koha::Patrons->find( { userid => $patron_id->{userid} }, {cache => 0} );
         }
     } else {
         if (length($patron_id) == 12 && C4::Context->preference('UsePNRAsIdentifierInSIP')) {
             $patron = find_by_pnr($patron_id, \*FD);
         } else {
-            $patron = Koha::Patrons->find_by_identifier($patron_id);
+            $patron = Koha::Patrons->find( { cardnumber => $patron_id }, {cache => 0} );
         }
     }
 
