@@ -88,6 +88,21 @@ if ( $quicksearch and $searchmember ) {
             }
 
             next if ( $type->code eq 'PNR' && $value !~ /^[0-9]{10}$/ );
+            if ($type->code eq 'PNR12' && $value =~ /^[0-9]{10}$/ ) {
+                push @attribute_conditions, [
+                    {
+                        "extended_attributes.code"      => $type->code,
+                        "extended_attributes.attribute" => "19" . $value
+                    }
+                ];
+                push @attribute_conditions, [
+                    {
+                        "extended_attributes.code"      => $type->code,
+                        "extended_attributes.attribute" => "20" . $value
+                    }
+                ];
+                next;
+            }
             next if ( $type->code eq 'PNR12' && $value !~ /^[0-9]{12}$/ );
 
             push @attribute_conditions, [
