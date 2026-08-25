@@ -106,7 +106,7 @@ sub can_update_pin {
     my $cardnumber = $borrower->cardnumber;
     # return 1 if $categorycode =~ /^(EX|UX|FR|FX|SR)$/;
     return 1 if getCatGroup($categorycode) eq "ALLM";
-    return 1 if (length($cardnumber) == 10 && substr($cardnumber, 0, 1) eq "3");
+    return 1 if (length($cardnumber) == 10 && (substr($cardnumber, 0, 1) eq "3" || substr($cardnumber, 0, 1) eq "4"));
     return 0;
 }
 
