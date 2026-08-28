@@ -266,12 +266,12 @@ else { #$action eq 'update'
   $borrower->set(\%newdata)->store;
 
   # Renew user if msg is from Ladok registration and user has real cardnumber
-  if (defined($msgtype) && $msgtype eq "student_participation" && (($existing_cardnumber ne $existing_pnr) && ($existing_cardnumber ne $existing_pnr12))) {
+  if (defined($msgtype) && $msgtype eq "student_participation") {
       $borrower->renew_account;
   }
   
   # Also renew user if msg is from Card and it is the first card for the person
-  if (defined($msgtype) && $msgtype eq "card" && (($existing_cardnumber eq $existing_pnr) || ($existing_cardnumber eq $existing_pnr12))) {
+  if (defined($msgtype) && $msgtype eq "card") {
       $borrower->renew_account;
   }
 }
