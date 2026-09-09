@@ -116,6 +116,7 @@ if ( $patron ) {
         'reserve[subscription_call_number]' => $subscription->{callnumber},
         'reserve[subscription_notes]' => $notes,
         'reserve[location_id]' => $branch,
+        'reserve[location]' => $branch, # Same as location_id, for use with both old and new bestall app.
       };
 
       # Call the external URL with the data provided above.
