@@ -74,14 +74,14 @@ if ( $patron ) {
       # The data provided to the external URL is:
       # username - The username of the patron the request is for
       # performer - The staff member who placed the request
-      # reserve.user_id - The borrowernumber of the patron the request is for
-      # reserve.biblio_id - The biblionumber of the subscription
-      # reserve.subscription_location - The library owning the subscription (text, not code)
-      # reserve.subscription_sublocation - The LOC text of the subscription
-      # reserve.subscription_sublocation_id - The LOC code of the subscription
-      # reserve.subscription_call_number - The callnumber of the subscription
-      # reserve.subscription_notes - The notes of the subscription
-      # reserve.location_id - The pickup library code.
+      # orderToSubmit.user_id - The borrowernumber of the patron the request is for
+      # orderToSubmit.biblio_id - The biblionumber of the subscription
+      # orderToSubmit.subscriptionLocation - The library owning the subscription (text, not code)
+      # orderToSubmit.subscriptionSublocation - The LOC text of the subscription
+      # orderToSubmit.subscriptionSublocationId - The LOC code of the subscription
+      # orderToSubmit.subscriptionCallNumber - The callnumber of the subscription
+      # orderToSubmit.subscriptionNotes - The notes of the subscription
+      # orderToSubmit.location - The pickup library code.
 
       # The URL to the external URL is defined in the koha-conf.xml file
       # as the value of the <subscription_request_url> tag.
@@ -107,15 +107,15 @@ if ( $patron ) {
         api_key => $external_url_apikey,
         username => $username,
         performer => $performer_borrowernumber,
-        'reserve[user_id]' => $borrowernumber,
-        'reserve[biblio_id]' => $biblionumber,
-        'reserve[subscription_id]' => $subscription_id,
-        'reserve[subscription_location]' => $subscription_branchname,
-        'reserve[subscription_sublocation]' => $subscription_sublocation,
-        'reserve[subscription_sublocation_id]' => $subscription_sublocation_id,
-        'reserve[subscription_call_number]' => $subscription->{callnumber},
-        'reserve[subscription_notes]' => $notes,
-        'reserve[location_id]' => $branch,
+        'orderToSubmit[user_id]' => $borrowernumber,
+        'orderToSubmit[biblio_id]' => $biblionumber,
+        'orderToSubmit[subscriptionId]' => $subscription_id,
+        'orderToSubmit[subscriptionLocation]' => $subscription_branchname,
+        'orderToSubmit[subscriptionSublocation]' => $subscription_sublocation,
+        'orderToSubmit[subscriptionSublocationId]' => $subscription_sublocation_id,
+        'orderToSubmit[subscriptionCallNumber]' => $subscription->{callnumber},
+        'orderToSubmit[subscriptionNotes]' => $notes,
+        'orderToSubmit[location]' => $branch,
       };
 
       # Call the external URL with the data provided above.
