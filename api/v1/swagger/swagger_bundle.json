@@ -35929,7 +35929,7 @@
             "null"
           ],
           "description": "the IP address for your library or branch",
-          "maxLength": 15
+          "maxLength": 1000
         },
         "notes": {
           "type": [
