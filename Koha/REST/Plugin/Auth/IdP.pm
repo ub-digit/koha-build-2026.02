@@ -25,7 +25,8 @@ use Koha::Exceptions;
 use Koha::Exceptions::Auth;
 use Koha::Patrons;
 
-use C4::Auth qw(create_basic_session);
+use C4::Auth qw(create_basic_session in_iprange);
+use Koha::Libraries;
 
 use CGI;
 use List::MoreUtils qw(any);
@@ -111,6 +112,19 @@ Generates a new session.
             my $session = C4::Auth::create_basic_session( { patron => $patron, interface => $interface } );
             $session->param( 'idp_code', $provider );
 
+            my $branches = { map { $_->branchcode => $_->unblessed } Koha::Libraries->search->as_list };
+            foreach my $br ( keys %$branches ) {
+
+                #     now we work with the treatment of ip
+                my $domain = $branches->{$br}->{'branchip'};
+                next unless ($domain);
+                if ( in_iprange($domain) ) {
+                    $session->param( 'branch',       $branches->{$br}->{'branchcode'} );
+                    # new op dev : add the branchname to the cookie
+                    $session->param( 'branchname',   $branches->{$br}->{'branchname'} );
+                    last;
+                }
+            }
             return $session->id;
         }
     );
