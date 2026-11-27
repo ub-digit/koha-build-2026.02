@@ -1126,7 +1126,7 @@ sub CanBookBeIssued {
     if ( $item_object->withdrawn && $item_object->withdrawn > 0 ) {
         $issuingimpossible{WTHDRAWN} = 1;
     }
-    if (   $item_object->restricted
+    if ( !C4::Context->preference("TreatRestrictedOneSameAsOthers") && $item_object->restricted
         && $item_object->restricted == 1 )
     {
         $issuingimpossible{RESTRICTED} = 1;

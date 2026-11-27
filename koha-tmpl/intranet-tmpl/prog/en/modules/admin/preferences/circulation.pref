@@ -647,6 +647,12 @@ Circulation:
               choices: authval
               source: LOST
             - "when the outstanding balance is written off."
+        -
+            - "RESTRICTED '1'"
+            - pref: TreatRestrictedOneSameAsOthers
+              choices:
+                  1: same as others
+                  0: blocks checkout
     Checkin policy:
         -
             - pref: TrapHoldsOnOrder
